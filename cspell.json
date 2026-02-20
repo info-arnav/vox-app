@@ -2,13 +2,7 @@
   "version": "0.2",
   "language": "en",
   "allowCompoundWords": true,
-  "ignorePaths": [
-    "node_modules/**",
-    "dist/**",
-    "build/**",
-    "coverage/**",
-    ".git/**"
-  ],
+  "ignorePaths": ["node_modules/**", "dist/**", "build/**", "coverage/**", ".git/**"],
   "words": [
     "attnum",
     "attrelid",
@@ -16,7 +10,6 @@
     "ceronica",
     "cntrl",
     "crawler",
-    "Digiiq",
     "fbclid",
     "gclid",
     "genai",
