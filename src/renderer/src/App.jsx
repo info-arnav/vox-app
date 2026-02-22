@@ -1,12 +1,12 @@
 import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
+import voxLogo from './assets/vox.svg'
 
 function App() {
   const ipcHandle = () => window.electron.ipcRenderer.send('ping')
 
   return (
     <>
-      <img alt="logo" className="logo" src={electronLogo} />
+      <img alt="logo" className="logo" src={voxLogo} />
       <div className="creator">Powered by electron-vite</div>
       <div className="text">
         Build an Electron app with <span className="react">React</span>
