@@ -155,6 +155,20 @@ function AuthView({ bootError, onLoginSuccess }) {
                 ? 'Create account'
                 : 'Sign in'}
           </button>
+
+          {isRegisterMode ? (
+            <p className="auth-legal">
+              By creating an account you agree to our{' '}
+              <a href="https://www.vox-ai.chat/terms" target="_blank" rel="noreferrer">
+                Terms of Service
+              </a>{' '}
+              and{' '}
+              <a href="https://www.vox-ai.chat/privacy" target="_blank" rel="noreferrer">
+                Privacy Policy
+              </a>
+              .
+            </p>
+          ) : null}
         </form>
       </article>
     </section>
