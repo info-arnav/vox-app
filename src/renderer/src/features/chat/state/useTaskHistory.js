@@ -84,6 +84,39 @@ export function useTaskHistory() {
     fetchPage(null)
   }, [fetchPage])
 
+  useEffect(() => {
+    const poll = async () => {
+      const running = historical.filter(
+        (t) => t.status === 'running' || t.status === 'spawned'
+      )
+      if (!running.length) return
+
+      const results = await Promise.allSettled(
+        running.map((t) => window.api.tasks.get(t.taskId))
+      )
+
+      setHistorical((prev) => {
+        let changed = false
+        const updates = new Map()
+        results.forEach((r, i) => {
+          if (r.status !== 'fulfilled' || !r.value?.success) return
+          const raw = r.value.data?.task
+          if (!raw) return
+          const next = normalizeHistoricalTask(raw)
+          if (next.status !== running[i].status) {
+            updates.set(next.taskId, next)
+            changed = true
+          }
+        })
+        if (!changed) return prev
+        return prev.map((h) => updates.get(h.taskId) ?? h)
+      })
+    }
+
+    const t = setInterval(poll, 5000)
+    return () => clearInterval(t)
+  }, [historical])
+
   const tasks = useMemo(() => {
     const liveIds = new Set(taskRecords.map((t) => t.taskId))
     const uniqueHistorical = historical.filter((t) => !liveIds.has(t.taskId))
