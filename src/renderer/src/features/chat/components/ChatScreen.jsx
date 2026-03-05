@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowUp, CheckCircle, CircleAlert } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -32,7 +32,7 @@ function runtimeLabel(status) {
   return 'Working on your request...'
 }
 
-function NotificationMessage({ message }) {
+const NotificationMessage = memo(function NotificationMessage({ message }) {
   const isOk = message.status === 'completed'
   const Icon = isOk ? CheckCircle : CircleAlert
   return (
@@ -52,9 +52,9 @@ function NotificationMessage({ message }) {
       </article>
     </div>
   )
-}
+})
 
-function ChatMessage({ message }) {
+const ChatMessage = memo(function ChatMessage({ message }) {
   if (message.role === 'notification') return <NotificationMessage message={message} />
   const isAssistant = message.role === 'assistant'
   return (
@@ -70,7 +70,7 @@ function ChatMessage({ message }) {
       </article>
     </div>
   )
-}
+})
 
 function ChatScreen({ user }) {
   const {
@@ -86,6 +86,8 @@ function ChatScreen({ user }) {
   const inputRef = useRef(null)
   const [hasContent, setHasContent] = useState(false)
   const chatStageRef = useRef(null)
+  const scrollRafRef = useRef(null)
+  const scrollTimerRef = useRef(null)
 
   const runtimeCopy = useMemo(() => {
     if (!liveRuntimeStatus || isConnecting) return ''
@@ -95,10 +97,16 @@ function ChatScreen({ user }) {
   useEffect(() => {
     const el = chatStageRef.current
     if (!el) return
-    const id = window.requestAnimationFrame(() => {
-      el.scrollTop = el.scrollHeight
-    })
-    return () => window.cancelAnimationFrame(id)
+    clearTimeout(scrollTimerRef.current)
+    scrollTimerRef.current = setTimeout(() => {
+      scrollRafRef.current = window.requestAnimationFrame(() => {
+        el.scrollTop = el.scrollHeight
+      })
+    }, 80)
+    return () => {
+      clearTimeout(scrollTimerRef.current)
+      window.cancelAnimationFrame(scrollRafRef.current)
+    }
   }, [messages, runtimeCopy])
 
   const canSend = !sending && hasContent

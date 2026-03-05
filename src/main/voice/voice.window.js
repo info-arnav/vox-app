@@ -39,6 +39,8 @@ export const createVoiceWindow = () => {
   } else if (process.platform === 'linux') {
     voiceWindow.setAlwaysOnTop(true, 'pop-up-menu')
     voiceWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
+  } else if (process.platform === 'win32') {
+    voiceWindow.setAlwaysOnTop(true, 'screen-saver')
   }
 
   voiceWindow.once('ready-to-show', () => {

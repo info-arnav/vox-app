@@ -3,6 +3,26 @@ import { getMessageId } from '../utils/chat.messages'
 
 export function useChatStream(setMessages) {
   const streamMessageMapRef = useRef(new Map())
+  const pendingChunksRef = useRef({})
+  const rafRef = useRef(null)
+
+  const flushChunks = useCallback(() => {
+    rafRef.current = null
+    const pending = pendingChunksRef.current
+    if (Object.keys(pending).length === 0) return
+    pendingChunksRef.current = {}
+
+    setMessages((current) => {
+      let next = current
+      for (const [messageId, text] of Object.entries(pending)) {
+        const idx = next.findLastIndex((m) => m.id === messageId)
+        if (idx === -1) continue
+        const updated = { ...next[idx], content: `${next[idx].content}${text}` }
+        next = [...next.slice(0, idx), updated, ...next.slice(idx + 1)]
+      }
+      return next
+    })
+  }, [setMessages])
 
   const markStreamStarted = useCallback(
     (streamId) => {
@@ -29,44 +49,36 @@ export function useChatStream(setMessages) {
 
   const appendAssistantChunk = useCallback(
     (streamId, chunkText) => {
-      if (!chunkText) {
-        return
-      }
+      if (!chunkText) return
 
       const streamKey = streamId || `stream-${getMessageId()}`
+      let messageId = streamMessageMapRef.current.get(streamKey)
 
-      setMessages((current) => {
-        let messageId = streamMessageMapRef.current.get(streamKey)
-        if (!messageId) {
-          messageId = `assistant-${streamKey}`
-          streamMessageMapRef.current.set(streamKey, messageId)
+      if (!messageId) {
+        messageId = `assistant-${streamKey}`
+        streamMessageMapRef.current.set(streamKey, messageId)
+        setMessages((current) => [
+          ...current,
+          { id: messageId, role: 'assistant', content: '', pending: true, streamId: streamKey }
+        ])
+      }
 
-          return [
-            ...current,
-            {
-              id: messageId,
-              role: 'assistant',
-              content: chunkText,
-              pending: true,
-              streamId: streamKey
-            }
-          ]
-        }
+      pendingChunksRef.current[messageId] = (pendingChunksRef.current[messageId] || '') + chunkText
 
-        return current.map((message) =>
-          message.id === messageId
-            ? { ...message, content: `${message.content}${chunkText}` }
-            : message
-        )
-      })
+      if (!rafRef.current) {
+        rafRef.current = window.requestAnimationFrame(flushChunks)
+      }
     },
-    [setMessages]
+    [flushChunks, setMessages]
   )
 
   const markStreamComplete = useCallback(
     (streamId) => {
-      if (!streamId) {
-        return
+      if (!streamId) return
+
+      if (rafRef.current) {
+        window.cancelAnimationFrame(rafRef.current)
+        flushChunks()
       }
 
       const messageId = streamMessageMapRef.current.get(streamId)
@@ -82,7 +94,7 @@ export function useChatStream(setMessages) {
         )
       )
     },
-    [setMessages]
+    [flushChunks, setMessages]
   )
 
   return { markStreamStarted, appendAssistantChunk, markStreamComplete }
