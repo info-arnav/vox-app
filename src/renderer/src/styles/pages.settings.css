@@ -1,0 +1,88 @@
+.settings-page-layout {
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 36px 32px;
+}
+
+.settings-page-layout::-webkit-scrollbar {
+  display: none;
+}
+
+.settings-page-inner {
+  display: grid;
+  gap: 40px;
+}
+
+.settings-name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.settings-form-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.settings-save-button {
+  height: 36px;
+  border-radius: 999px;
+  border: 0;
+  padding: 0 20px;
+  background: var(--brand-start);
+  color: var(--brand-ink);
+  font-weight: 700;
+  font-size: 0.86rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 120ms;
+}
+
+.settings-save-button:hover {
+  opacity: 0.88;
+}
+.settings-save-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.account-panel-card {
+  display: grid;
+  gap: 12px;
+}
+
+.account-panel-meta p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+
+.account-panel-meta strong {
+  color: var(--text-primary);
+}
+
+.indexing-control-row {
+  margin-top: 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.indexing-control-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.indexing-control-copy p {
+  margin: 0;
+}
+
+.indexing-control-copy p:last-child {
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  max-width: 52ch;
+}

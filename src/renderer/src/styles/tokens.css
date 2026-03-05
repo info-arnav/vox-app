@@ -1,0 +1,26 @@
+@import '../assets/base.css';
+
+:root {
+  --bg-base: #1a1918;
+  --bg-input: rgba(255, 255, 255, 0.06);
+}
+
+body {
+  background: #1a1918;
+}
+
+#root {
+  width: 100%;
+  min-height: 100%;
+  height: 100%;
+}
+
+.window-drag-region {
+  position: fixed;
+  top: 0;
+  left: 220px;
+  right: 0;
+  height: 32px;
+  -webkit-app-region: drag;
+  z-index: 9999;
+}
