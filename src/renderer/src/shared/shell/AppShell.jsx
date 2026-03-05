@@ -1,5 +1,6 @@
 import LeftRail from './LeftRail'
 import ToastLayer from './ToastLayer'
+import UpdateBanner from '../components/UpdateBanner'
 
 function AppShell({ activeRoute, children, onLogout, onRouteChange, user }) {
   return (
@@ -13,6 +14,7 @@ function AppShell({ activeRoute, children, onLogout, onRouteChange, user }) {
         />
 
         <main className="workspace-main">
+          <UpdateBanner />
           <div className="workspace-page">{children}</div>
         </main>
       </div>

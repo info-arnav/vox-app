@@ -4,6 +4,7 @@ import { registerChatIpc } from './chat.ipc'
 import { registerIndexingIpc } from './indexing.ipc'
 import { registerTaskIpc } from './task.ipc'
 import { registerVoiceIpc } from './voice.ipc'
+import { registerUpdaterIpc } from './updater.ipc'
 
 export const registerIpcHandlers = () => {
   registerAuthIpc()
@@ -12,4 +13,5 @@ export const registerIpcHandlers = () => {
   registerIndexingIpc()
   registerTaskIpc()
   registerVoiceIpc()
+  registerUpdaterIpc()
 }

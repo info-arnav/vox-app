@@ -83,6 +83,12 @@ const api = {
       electronAPI.ipcRenderer.on(VOICE_AUDIO_CHANNEL, wrapped)
       return () => electronAPI.ipcRenderer.removeListener(VOICE_AUDIO_CHANNEL, wrapped)
     }
+  },
+  update: {
+    onAvailable: (listener) => subscribeToRendererEvent('update:available', listener),
+    onDownloaded: (listener) => subscribeToRendererEvent('update:downloaded', listener),
+    onError: (listener) => subscribeToRendererEvent('update:error', listener),
+    installAndRestart: () => electronAPI.ipcRenderer.invoke('update:install')
   }
 }
 

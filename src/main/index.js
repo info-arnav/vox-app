@@ -4,6 +4,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { registerIpcHandlers } from './ipc/index'
+import { initUpdater } from './updater/updater'
 import { initVoiceService, destroyVoiceService } from './voice/voice.service'
 import { createVoiceWindow, destroyVoiceWindow } from './voice/voice.window'
 import { createVoiceTray, destroyVoiceTray } from './voice/voice.tray'
@@ -79,6 +80,7 @@ app.whenReady().then(() => {
   })
 
   registerIpcHandlers()
+  initUpdater(() => mainWindow)
   initVoiceService()
 
   createWindow()
