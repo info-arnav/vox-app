@@ -28,6 +28,12 @@ if (process.platform === 'linux') {
 let mainWindow = null
 
 function createWindow() {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.show()
+    mainWindow.focus()
+    return
+  }
+
   mainWindow = new BrowserWindow({
     width: DEFAULT_WINDOW_WIDTH,
     height: DEFAULT_WINDOW_HEIGHT,
@@ -77,7 +83,12 @@ app.whenReady().then(() => {
 
   createWindow()
   createVoiceWindow()
-  createVoiceTray()
+  createVoiceTray(createWindow)
+
+  if (process.platform === 'darwin') {
+    app.setActivationPolicy('regular')
+    app.dock.show()
+  }
 
   app.on('activate', function () {
     if (!mainWindow) createWindow()
@@ -92,5 +103,5 @@ app.on('before-quit', () => {
 })
 
 app.on('window-all-closed', () => {
-  app.quit()
+  // keep app alive in tray; user quits via tray menu
 })

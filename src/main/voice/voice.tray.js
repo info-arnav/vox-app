@@ -3,6 +3,7 @@ import { join } from 'path'
 import { emitToWindows, VOICE_ACTIVATE_CHANNEL } from '../chat/chat.socket.state'
 
 let tray = null
+let _createWindow = null
 
 const focusOrCreateMain = () => {
   const wins = BrowserWindow.getAllWindows()
@@ -11,10 +12,13 @@ const focusOrCreateMain = () => {
     if (main.isMinimized()) main.restore()
     main.show()
     main.focus()
+  } else if (_createWindow) {
+    _createWindow()
   }
 }
 
-export const createVoiceTray = () => {
+export const createVoiceTray = (createWindow) => {
+  _createWindow = createWindow
   const imgPath = join(__dirname, '../../resources/vox-tray.png')
   const img = nativeImage.createFromPath(imgPath).resize({ width: 22, height: 22 })
 
@@ -35,8 +39,6 @@ export const createVoiceTray = () => {
   ])
 
   tray.setContextMenu(menu)
-
-  tray.on('click', focusOrCreateMain)
 }
 
 export const destroyVoiceTray = () => {
