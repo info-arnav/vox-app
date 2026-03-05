@@ -74,13 +74,10 @@ function App() {
   }
 
   const handleLogout = async () => {
-    // Clear local state and flip to login screen immediately — don't block
-    // on network calls or background cleanup.
     clearWorkspaceLocalState()
     setSession(EMPTY_SESSION)
     setBootError('')
 
-    // Fire cleanup in the background after the UI has already transitioned.
     window.api.auth.logout().catch(() => {})
     window.api.chat.disconnect().catch(() => {})
     window.api.indexing.resetState().catch(() => {})

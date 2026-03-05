@@ -109,8 +109,6 @@ export const logout = async () => {
   cancelScheduledRefresh()
   clearState()
 
-  // Fire server-side session invalidation in the background — don't block
-  // the UI on a network round-trip.
   requestJson('/auth/session/logout', { method: 'POST' }).catch(() => {})
 
   return createSession()
