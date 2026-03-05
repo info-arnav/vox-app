@@ -99,7 +99,12 @@ export const useChatEventHandler = ({
         const taskId = shortTaskId(rawTaskId)
         const status = String(event?.data?.status || 'updated').toLowerCase()
 
-        if (status === 'completed' || status === 'failed' || status === 'aborted' || status === 'incomplete') {
+        if (
+          status === 'completed' ||
+          status === 'failed' ||
+          status === 'aborted' ||
+          status === 'incomplete'
+        ) {
           const result = String(event?.data?.result || '').trim()
           const notifyId = `task-notify-${rawTaskId}`
           setMessages((current) => {

@@ -1,5 +1,5 @@
 export const DEFAULT_WINDOW_WIDTH = 1100
-export const DEFAULT_WINDOW_HEIGHT = 800
+export const DEFAULT_WINDOW_HEIGHT = 850
 
 export const MIN_WINDOW_WIDTH = 1100
-export const MIN_WINDOW_HEIGHT = 800
+export const MIN_WINDOW_HEIGHT = 850

@@ -70,8 +70,6 @@ Get the latest release from [Releases](https://github.com/info-arnav/vox-app/rel
 
 > Note: Credit purchases are temporarily disabled while billing is being tested. Existing credits still work normally.
 >
-> macOS note: The current release is unsigned. Right click app -> Open -> Open anyway.
->
 > Windows note: SmartScreen may show "Unknown publisher". Click More info -> Run anyway.
 
 ## Local Development
@@ -113,6 +111,20 @@ VOX_WS_BASE_URL=ws://localhost:17300
 ```
 
 If `VOX_API_BASE_URL` and `VOX_WS_BASE_URL` are omitted, app uses `https://api.vox-ai.chat`.
+
+### macOS signing and notarization
+
+For local builds with signing, set these environment variables:
+
+```env
+APPLE_ID=your_apple_id@example.com
+APPLE_APP_SPECIFIC_PASSWORD=your_app_specific_password
+APPLE_TEAM_ID=your_team_id
+```
+
+Get `APPLE_APP_SPECIFIC_PASSWORD` from [appleid.apple.com](https://appleid.apple.com) → App-Specific Passwords. `APPLE_TEAM_ID` is the 10-character Team ID from your Apple Developer account.
+
+For CI, add these as repository secrets (`APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`). The release workflow reads them automatically.
 
 ### 4) Run
 

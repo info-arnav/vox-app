@@ -2,7 +2,7 @@ export const PPTX_TOOL_DEFINITIONS = [
   {
     name: 'create_presentation_document',
     description:
-      "Create or overwrite a styled PowerPoint .pptx file on the user's local machine with slide-level formatting. Do not call with path/title only; include slide content via slides/content/body/text/markdown.",
+      "Create or overwrite a styled PowerPoint .pptx file on the user's local machine with slide-level formatting. IMPORTANT: each call overwrites the file — you will lose previous slides. Always include ALL slides in one call. To build a multi-slide deck across steps, use append=true on intermediate calls and finalize=true on the last call to batch all slides into one write. Do not call with path/title only; include slide content via slides/content/body/text/markdown.",
     parameters: {
       type: 'object',
       properties: {
@@ -186,6 +186,16 @@ export const PPTX_TOOL_DEFINITIONS = [
         createParents: {
           type: 'boolean',
           description: 'Create missing parent directories automatically. Defaults to true.'
+        },
+        append: {
+          type: 'boolean',
+          description:
+            'When true, new slides are queued after any slides already staged for this path. Use with finalize=false on intermediate calls and finalize=true on the final call to write the complete deck in one shot.'
+        },
+        finalize: {
+          type: 'boolean',
+          description:
+            'When true (default), writes all staged slides to disk immediately. Set to false when more slides will follow via append=true.'
         }
       },
       required: ['path']

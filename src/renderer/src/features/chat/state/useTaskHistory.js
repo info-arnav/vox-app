@@ -87,14 +87,10 @@ export function useTaskHistory() {
 
   useEffect(() => {
     const poll = async () => {
-      const running = historical.filter(
-        (t) => t.status === 'running' || t.status === 'spawned'
-      )
+      const running = historical.filter((t) => t.status === 'running' || t.status === 'spawned')
       if (!running.length) return
 
-      const results = await Promise.allSettled(
-        running.map((t) => window.api.tasks.get(t.taskId))
-      )
+      const results = await Promise.allSettled(running.map((t) => window.api.tasks.get(t.taskId)))
 
       setHistorical((prev) => {
         let changed = false
