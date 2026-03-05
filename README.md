@@ -17,6 +17,8 @@ Get the latest release from the [Releases](https://github.com/info-arnav/vox-app
 | Windows | `.exe` (NSIS installer) |
 | Linux | `.AppImage` or `.deb` |
 
+> **Note:** Credit purchases are temporarily disabled while billing is being tested. The app is fully functional — existing credits work normally.
+
 > **macOS note:** The current release is unsigned. To open it, right-click the app → Open → Open anyway. A notarized build is coming soon.
 
 > **Windows note:** SmartScreen may show an "Unknown publisher" warning. Click More info → Run anyway.

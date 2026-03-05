@@ -83,6 +83,9 @@ function BillingSettingsPanel({ creditsBalance, onRefreshCredits, onStartCheckou
     <article className="workspace-panel-card">
       <h2>Billing</h2>
 
+      <p className="alert alert-warning">
+        Credit purchases are temporarily disabled while billing is being set up. Your existing credits work normally.
+      </p>
       <div className="billing-balance-hero">
         <div className="billing-balance-left">
           <span className="billing-balance-label">Balance</span>
@@ -130,7 +133,7 @@ function BillingSettingsPanel({ creditsBalance, onRefreshCredits, onStartCheckou
         <div className="billing-action-row">
           <button
             className="settings-save-button"
-            disabled={Boolean(runningAction) || !isValidCredits}
+            disabled={true}
             onClick={handleCheckout}
             type="button"
           >
