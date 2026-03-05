@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useChatRuntime } from './ChatRuntimeContext'
+import { computeEffectiveStatus } from '../../runtime/utils/task.utils'
 
 const PAGE_SIZE = 20
 
@@ -118,9 +119,16 @@ export function useTaskHistory() {
   }, [historical])
 
   const tasks = useMemo(() => {
+    const historicalMap = new Map(historical.map((t) => [t.taskId, t]))
     const liveIds = new Set(taskRecords.map((t) => t.taskId))
     const uniqueHistorical = historical.filter((t) => !liveIds.has(t.taskId))
-    return [...taskRecords, ...uniqueHistorical]
+    const mergedLive = taskRecords.map((live) => {
+      const dbTask = historicalMap.get(live.taskId)
+      if (!dbTask) return live
+      const effectiveStatus = computeEffectiveStatus(live.status, dbTask)
+      return effectiveStatus !== live.status ? { ...live, status: effectiveStatus } : live
+    })
+    return [...mergedLive, ...uniqueHistorical]
   }, [taskRecords, historical])
 
   return { tasks, hasMore, loading, loadMore, refresh }

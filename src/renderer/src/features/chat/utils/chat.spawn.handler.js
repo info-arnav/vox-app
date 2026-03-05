@@ -113,10 +113,8 @@ export const applyToolEvent = (type, data, timestamp, setTasks) => {
     const normalizedStatus = String(existing.status || '')
       .trim()
       .toLowerCase()
-    const nextStatus =
-      normalizedStatus === 'failed' || normalizedStatus === 'completed'
-        ? existing.status
-        : 'running'
+    const TERMINAL = new Set(['completed', 'failed', 'aborted', 'incomplete'])
+    const nextStatus = TERMINAL.has(normalizedStatus) ? existing.status : 'running'
 
     return upsertTaskState(
       current,
