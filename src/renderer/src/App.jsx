@@ -74,27 +74,16 @@ function App() {
   }
 
   const handleLogout = async () => {
-    try {
-      await window.api.chat.disconnect()
-    } catch (error) {
-      void error
-    }
-
-    try {
-      await window.api.indexing.resetState()
-    } catch (error) {
-      void error
-    }
-
+    // Clear local state and flip to login screen immediately — don't block
+    // on network calls or background cleanup.
     clearWorkspaceLocalState()
+    setSession(EMPTY_SESSION)
+    setBootError('')
 
-    const response = await window.api.auth.logout()
-    if (!response?.success) {
-      setBootError(response?.error?.message || 'Logout failed.')
-      return
-    }
-
-    setSession(response.data?.session || EMPTY_SESSION)
+    // Fire cleanup in the background after the UI has already transitioned.
+    window.api.auth.logout().catch(() => {})
+    window.api.chat.disconnect().catch(() => {})
+    window.api.indexing.resetState().catch(() => {})
   }
 
   const syncSessionFromMain = async () => {

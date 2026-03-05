@@ -107,16 +107,12 @@ export const updateWorkspaceProfile = async (payload) => {
 
 export const logout = async () => {
   cancelScheduledRefresh()
-
-  try {
-    await requestJson('/auth/session/logout', {
-      method: 'POST'
-    })
-  } catch (error) {
-    void error
-  }
-
   clearState()
+
+  // Fire server-side session invalidation in the background — don't block
+  // the UI on a network round-trip.
+  requestJson('/auth/session/logout', { method: 'POST' }).catch(() => {})
+
   return createSession()
 }
 
