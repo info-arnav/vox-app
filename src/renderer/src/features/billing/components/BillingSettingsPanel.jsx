@@ -84,7 +84,8 @@ function BillingSettingsPanel({ creditsBalance, onRefreshCredits, onStartCheckou
       <h2>Billing</h2>
 
       <p className="alert alert-warning">
-        Credit purchases are temporarily disabled while billing is being set up. Your existing credits work normally.
+        Credit purchases are temporarily disabled while billing is being set up. Your existing
+        credits work normally.
       </p>
       <div className="billing-balance-hero">
         <div className="billing-balance-left">
