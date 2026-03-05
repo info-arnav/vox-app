@@ -45,6 +45,8 @@ jobs:
 
       - name: Build app
         run: npm run build
+        env:
+          PORCUPINE_ACCESS_KEY: ${{ secrets.PORCUPINE_ACCESS_KEY }}
 
       - name: Package app
         run: npm run ${{ matrix.script }}
