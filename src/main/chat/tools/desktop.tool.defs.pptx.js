@@ -2,7 +2,7 @@ export const PPTX_TOOL_DEFINITIONS = [
   {
     name: 'create_presentation_document',
     description:
-      "Create or overwrite a styled PowerPoint .pptx file on the user's local machine with slide-level formatting. IMPORTANT: each call overwrites the file — you will lose previous slides. Always include ALL slides in one call. To build a multi-slide deck across steps, use append=true on intermediate calls and finalize=true on the last call to batch all slides into one write. Do not call with path/title only; include slide content via slides/content/body/text/markdown.",
+      "Create or overwrite a styled PowerPoint .pptx file on the user's local machine. MULTI-STEP DECKS: use append=true to stage slides in memory without touching the file — slides accumulate across calls. Pass finalize=false on every step except the last. Pass finalize=true (or omit it, since true is the default) on the last step to flush all staged slides to disk at once. When append=true is used, NO data is lost from prior steps — prior staged slides are already in memory. You do NOT need to re-provide slides from earlier steps. Each step only needs to pass its own new slides. Without append=true, each call overwrites the file. Do not call with path/title only; always include slide content via slides/content/body/text/markdown.",
     parameters: {
       type: 'object',
       properties: {
@@ -190,7 +190,7 @@ export const PPTX_TOOL_DEFINITIONS = [
         append: {
           type: 'boolean',
           description:
-            'When true, new slides are queued after any slides already staged for this path. Use with finalize=false on intermediate calls and finalize=true on the final call to write the complete deck in one shot.'
+            'When true, the slides in this call are staged in memory for this path. The file is NOT written yet. Prior steps that used append=true have already staged their slides — you do not need to re-provide them. Use append=true with finalize=false on every step except the last, then append=true with finalize=true (or just finalize=true) on the final step to write the complete deck.'
         },
         finalize: {
           type: 'boolean',
