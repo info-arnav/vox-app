@@ -21,7 +21,7 @@ jobs:
           - os: windows-latest
             script: build:win
             artifacts: 'dist/*.exe'
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             script: build:linux
             artifacts: 'dist/*.AppImage dist/*.deb'
 
