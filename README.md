@@ -1,5 +1,10 @@
 # Vox
 
+[![Latest Release](https://img.shields.io/github/v/release/info-arnav/vox-app?style=flat-square)](https://github.com/info-arnav/vox-app/releases/latest)
+[![Release Build](https://img.shields.io/github/actions/workflow/status/info-arnav/vox-app/release.yml?style=flat-square&label=release%20build)](https://github.com/info-arnav/vox-app/actions/workflows/release.yml)
+[![License](https://img.shields.io/github/license/info-arnav/vox-app?style=flat-square)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-blue?style=flat-square)](#download)
+
 Vox is an AI-powered desktop assistant with voice mode, screen awareness, and task execution. It connects to the Vox cloud backend and runs on macOS, Windows, and Linux.
 
 ## Download
@@ -150,8 +155,3 @@ Open an issue and include:
 ## License
 
 MIT — see [LICENSE](LICENSE)
-- Any errors from the DevTools console (`F12`)
-
-## License
-
-MIT
