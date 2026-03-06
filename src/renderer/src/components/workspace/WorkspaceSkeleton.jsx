@@ -1,43 +1,56 @@
-const NAV_WIDTHS = [68, 56, 72, 56, 50]
+const NAV_LABEL_WIDTHS = [36, 54, 66, 52]
+
+function SkeletonLine({ width, style }) {
+  return (
+    <div
+      className="workspace-skeleton-line"
+      style={{ width: width ? `${width}%` : undefined, ...style }}
+    />
+  )
+}
 
 function WorkspaceSkeleton() {
   return (
     <section className="workspace-shell workspace-shell-loading">
       <div className="workspace-layout workspace-layout-loading">
+        {/* Left rail — mirrors LeftRail.jsx exactly */}
         <aside className="workspace-sidebar">
-          <div className="workspace-skeleton-sidebar-inner">
-            <div
-              className="workspace-skeleton-line workspace-skeleton-line-short"
-              style={{ marginBottom: 24 }}
-            />
-            {NAV_WIDTHS.map((w, i) => (
-              <div
-                key={i}
-                className="workspace-skeleton-line"
-                style={{ width: `${w}%`, marginTop: i === 0 ? 0 : 12 }}
-              />
+          {/* Wordmark */}
+          <div className="workspace-skeleton-wordmark" />
+
+          {/* Nav — 4 items: icon stub + label stub */}
+          <nav aria-hidden="true" className="workspace-nav">
+            {NAV_LABEL_WIDTHS.map((w, i) => (
+              <div className="workspace-skeleton-nav-row" key={i}>
+                <div className="workspace-skeleton-icon" />
+                <SkeletonLine width={w} />
+              </div>
             ))}
+          </nav>
+
+          {/* Spacer (fills 1fr row in sidebar grid) */}
+          <div className="workspace-sidebar-spacer" />
+
+          {/* User menu row */}
+          <div>
+            <hr className="workspace-nav-divider" style={{ marginBottom: 8 }} />
+            <div className="workspace-skeleton-user-row">
+              <div className="workspace-skeleton-avatar" />
+              <SkeletonLine width={52} />
+            </div>
           </div>
         </aside>
 
+        {/* Main — mirrors workspace-main + chat composer */}
         <main className="workspace-main workspace-skeleton-main">
-          <div className="workspace-skeleton-line workspace-skeleton-line-wide" />
-          <div
-            className="workspace-skeleton-line workspace-skeleton-line-long"
-            style={{ marginTop: 14 }}
-          />
-          <div
-            className="workspace-skeleton-line workspace-skeleton-line-medium"
-            style={{ marginTop: 10 }}
-          />
-          <div
-            className="workspace-skeleton-line workspace-skeleton-line-long"
-            style={{ marginTop: 10 }}
-          />
-          <div
-            className="workspace-skeleton-line workspace-skeleton-line-short"
-            style={{ marginTop: 10 }}
-          />
+          {/* Empty messages area */}
+          <div className="workspace-skeleton-chat-area" />
+
+          {/* Composer bar */}
+          <div className="workspace-skeleton-composer">
+            <SkeletonLine style={{ flex: 1, width: undefined }} />
+            <div className="workspace-skeleton-composer-btn" />
+          </div>
         </main>
       </div>
     </section>

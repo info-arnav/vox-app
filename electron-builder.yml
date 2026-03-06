@@ -1,5 +1,5 @@
 appId: com.arnavgupta.vox
-productName: vox
+productName: Vox
 directories:
   buildResources: build
 files:

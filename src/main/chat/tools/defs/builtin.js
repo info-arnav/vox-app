@@ -195,5 +195,20 @@ export const BUILTIN_TOOL_DEFINITIONS = [
       },
       required: ['command']
     }
+  },
+  {
+    name: 'get_scratch_dir',
+    description:
+      "Create and return a dedicated temporary working directory for this task. Use this for any intermediate or cache files the agent needs during processing — do NOT scatter temp files across the user's home directory. Returns the absolute path of the created folder.",
+    parameters: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description:
+            'Optional identifier for the folder (e.g. a task name slug). A random ID is used if omitted. Reuse the same id within a task to get back the same directory.'
+        }
+      }
+    }
   }
 ]

@@ -36,6 +36,9 @@ Vox is an AI desktop copilot that can see your screen, work with your local file
 | `create_word_document` | Generates styled `.docx` documents |
 | `create_pdf_document` | Generates styled `.pdf` documents |
 | `create_presentation_document` | Generates styled `.pptx` decks |
+| `send_email` | Sends email via Mail.app (macOS), Outlook (Windows), or Thunderbird/xdg-open (Linux) |
+| `read_emails` | Reads emails from local mail client — inbox or any named folder |
+| `search_contacts` | Searches Contacts.app / Outlook / GNOME Contacts by name, returns email addresses |
 
 ### Server/cloud tools (executed in Vox backend)
 
@@ -57,6 +60,9 @@ Vox is an AI desktop copilot that can see your screen, work with your local file
 - "Search the web for latest Postgres vector indexing benchmarks and summarize."
 - "Find my last task where we edited a spreadsheet and show the exact result."
 - "Index my `~/Projects` folder and answer based on those files only."
+- "Read my last 10 unread emails and summarize them."
+- "Send Sara an email with the PDF I just created attached."
+- "Who emailed me about the invoice this week?"
 
 ## Download
 
@@ -149,6 +155,13 @@ src/
 ├── main/
 │   ├── auth/       Login, session refresh, token state
 │   ├── chat/       WebSocket session + tool bridge
+│   │   └── tools/
+│   │       ├── defs/   AI tool definitions (JSON schema)
+│   │       ├── docs/   Word, PDF, PPTX generation
+│   │       ├── fs/     File I/O, directory, shell command
+│   │       └── mail/
+│   │           ├── send/   Email send (mac / win / linux)
+│   │           └── read/   Email read (mac / win / linux)
 │   ├── indexing/   Local file indexing and retrieval
 │   ├── ipc/        Renderer <-> main IPC handlers
 │   └── voice/      Wake word, global shortcut, voice window

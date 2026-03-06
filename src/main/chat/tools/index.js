@@ -5,6 +5,7 @@ import { createPresentationDocument } from './docs/pptx'
 import { readLocalFile, writeLocalFile } from './fs/io'
 import { deleteLocalPath, listLocalDirectory } from './fs/directory'
 import { runLocalCommand } from './fs/command'
+import { getScratchDir } from './fs/scratch'
 import { captureFullScreen } from './screen'
 import { listIndexedFiles, readIndexedFile } from './snapshot'
 import { sendEmail, searchContacts, readEmails } from './mail'
@@ -18,6 +19,7 @@ const TOOL_EXECUTORS = {
   list_local_directory: listLocalDirectory,
   delete_local_path: deleteLocalPath,
   run_local_command: runLocalCommand,
+  get_scratch_dir: getScratchDir,
   create_word_document: createWordDocument,
   create_pdf_document: createPdfDocument,
   create_presentation_document: createPresentationDocument,
