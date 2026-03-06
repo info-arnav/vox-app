@@ -4,8 +4,8 @@ import {
   LEGACY_OFFICE_EXTENSIONS,
   SUPPORTED_DOCUMENT_EXTENSIONS,
   readTextFileForIndex
-} from '../../indexing/indexing.files'
-import { resolveLocalPath } from './desktop.tool.shared'
+} from '../../../indexing/indexing.files'
+import { resolveLocalPath } from '../shared'
 
 export const writeLocalFile = async (payload) => {
   const targetPath = resolveLocalPath(payload?.path)

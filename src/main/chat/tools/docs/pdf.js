@@ -8,7 +8,7 @@ import {
   parsePdfColor,
   resolvePathInputFromPayload,
   resolvePathWithExtension
-} from './desktop.tool.shared'
+} from '../shared'
 
 const wrapTextByWidth = (inputText, font, fontSize, maxWidth) => {
   const words = String(inputText || '')

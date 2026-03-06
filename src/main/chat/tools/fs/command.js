@@ -1,6 +1,6 @@
 import { exec } from 'child_process'
 import os from 'os'
-import { resolveLocalPath } from './desktop.tool.shared'
+import { resolveLocalPath } from '../shared'
 
 export const runLocalCommand = async (payload) => {
   const command = String(payload?.command || '').trim()

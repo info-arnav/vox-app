@@ -12,7 +12,7 @@ import {
   resolvePathInputFromPayload,
   toDocxHalfPoints,
   toDocxTwips
-} from './desktop.tool.shared'
+} from '../shared'
 
 let officeParserPromise = null
 

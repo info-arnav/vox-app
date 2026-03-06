@@ -1,7 +1,7 @@
 import fs from 'fs/promises'
 import os from 'os'
 import path from 'path'
-import { clampNumber, resolveLocalPath } from './desktop.tool.shared'
+import { clampNumber, resolveLocalPath } from '../shared'
 
 export const listLocalDirectory = async (payload) => {
   const targetPath = payload?.path ? resolveLocalPath(payload.path) : os.homedir()

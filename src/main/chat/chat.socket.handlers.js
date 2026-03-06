@@ -1,5 +1,5 @@
 import { createError } from '../auth/auth.error'
-import { runDesktopTool } from './tools/desktop.tools'
+import { runDesktopTool } from './tools'
 import { isAuthClose, isAuthErrorEvent, normalizeCloseReason } from './chat.connection'
 import {
   TOOL_LOG_CHANNEL,

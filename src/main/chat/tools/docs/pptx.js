@@ -7,7 +7,7 @@ import {
   resolveDocumentContent,
   resolvePathInputFromPayload,
   resolvePathWithExtension
-} from './desktop.tool.shared'
+} from '../shared'
 
 const slideStageMap = new Map()
 

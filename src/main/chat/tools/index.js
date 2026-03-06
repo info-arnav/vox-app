@@ -1,12 +1,13 @@
-import { TOOL_DEFINITIONS } from './desktop.tool.defs'
-import { createWordDocument } from './desktop.tool.word'
-import { createPdfDocument } from './desktop.tool.pdf'
-import { createPresentationDocument } from './desktop.tool.pptx'
-import { readLocalFile, writeLocalFile } from './desktop.tool.fs.io'
-import { deleteLocalPath, listLocalDirectory } from './desktop.tool.fs.directory'
-import { runLocalCommand } from './desktop.tool.fs.command'
-import { captureFullScreen } from './desktop.tool.screen'
-import { listIndexedFiles, readIndexedFile } from './desktop.tool.snapshot'
+import { TOOL_DEFINITIONS } from './defs'
+import { createWordDocument } from './docs/word'
+import { createPdfDocument } from './docs/pdf'
+import { createPresentationDocument } from './docs/pptx'
+import { readLocalFile, writeLocalFile } from './fs/io'
+import { deleteLocalPath, listLocalDirectory } from './fs/directory'
+import { runLocalCommand } from './fs/command'
+import { captureFullScreen } from './screen'
+import { listIndexedFiles, readIndexedFile } from './snapshot'
+import { sendEmail, searchContacts } from './mail'
 
 const TOOL_EXECUTORS = {
   capture_full_screen: captureFullScreen,
@@ -19,7 +20,9 @@ const TOOL_EXECUTORS = {
   run_local_command: runLocalCommand,
   create_word_document: createWordDocument,
   create_pdf_document: createPdfDocument,
-  create_presentation_document: createPresentationDocument
+  create_presentation_document: createPresentationDocument,
+  send_email: sendEmail,
+  search_contacts: searchContacts
 }
 
 export const DESKTOP_TOOL_DECLARATIONS = TOOL_DEFINITIONS

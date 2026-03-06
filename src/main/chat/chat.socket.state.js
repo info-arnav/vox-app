@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto'
 import { BrowserWindow } from 'electron'
 import { createError } from '../auth/auth.error'
-import { DESKTOP_TOOL_DECLARATIONS } from './tools/desktop.tools'
+import { DESKTOP_TOOL_DECLARATIONS } from './tools'
 
 export const CHAT_STATUS_CHANNEL = 'chat:status'
 export const CHAT_EVENT_CHANNEL = 'chat:event'
