@@ -7,7 +7,7 @@ import {
   writeLocalChatMessages
 } from '../utils/chat.messages'
 import { activityFromEvent } from '../utils/chat.activity'
-import { ChatRuntimeContext, EMPTY_CONTEXT_VALUE } from './ChatRuntimeContext'
+import { ChatRuntimeContext, ChatLiveContext, EMPTY_CONTEXT_VALUE } from './ChatRuntimeContext'
 import { useChatStream } from './useChatStream'
 import { useChatEventHandler } from './useChatEventHandler'
 
@@ -70,12 +70,21 @@ export function ChatRuntimeProvider({ chatUserId, children }) {
     [clearLiveStatusTimer]
   )
 
+  const activityIdSetRef = useRef(new Set())
   const appendActivity = useCallback((event) => {
     const item = activityFromEvent(event)
     if (!item) return
     setActivityFeed((current) => {
-      const deduped = current.filter((entry) => entry.id !== item.id)
-      return [item, ...deduped].slice(0, MAX_ACTIVITY_ITEMS)
+      if (activityIdSetRef.current.has(item.id)) {
+        return current.map((entry) => (entry.id === item.id ? item : entry))
+      }
+      activityIdSetRef.current.add(item.id)
+      const next = [item, ...current]
+      if (next.length > MAX_ACTIVITY_ITEMS) {
+        activityIdSetRef.current.delete(next[next.length - 1].id)
+        return next.slice(0, MAX_ACTIVITY_ITEMS)
+      }
+      return next
     })
   }, [])
 
@@ -211,9 +220,6 @@ export function ChatRuntimeProvider({ chatUserId, children }) {
     () => ({
       chatStatus,
       messages,
-      activityFeed,
-      taskRecords,
-      liveRuntimeStatus,
       sending,
       isConnecting,
       sendError,
@@ -226,19 +232,25 @@ export function ChatRuntimeProvider({ chatUserId, children }) {
     [
       abortTask,
       abortCurrentTask,
-      activityFeed,
       chatStatus,
       clearSendError,
       isConnecting,
-      liveRuntimeStatus,
       messages,
       resumeTask,
       sendError,
       sendMessage,
-      sending,
-      taskRecords
+      sending
     ]
   )
 
-  return <ChatRuntimeContext.Provider value={contextValue}>{children}</ChatRuntimeContext.Provider>
+  const liveValue = useMemo(
+    () => ({ activityFeed, taskRecords, liveRuntimeStatus }),
+    [activityFeed, taskRecords, liveRuntimeStatus]
+  )
+
+  return (
+    <ChatRuntimeContext.Provider value={contextValue}>
+      <ChatLiveContext.Provider value={liveValue}>{children}</ChatLiveContext.Provider>
+    </ChatRuntimeContext.Provider>
+  )
 }

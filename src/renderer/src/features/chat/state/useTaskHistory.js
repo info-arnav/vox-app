@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useChatRuntime } from './ChatRuntimeContext'
+import { useChatLive } from './ChatRuntimeContext'
 import { computeEffectiveStatus } from '../../runtime/utils/task.utils'
 
 const PAGE_SIZE = 20
@@ -34,7 +34,7 @@ function normalizeHistoricalTask(row) {
 }
 
 export function useTaskHistory() {
-  const { taskRecords } = useChatRuntime()
+  const { taskRecords } = useChatLive()
 
   const [historical, setHistorical] = useState([])
   const [hasMore, setHasMore] = useState(false)

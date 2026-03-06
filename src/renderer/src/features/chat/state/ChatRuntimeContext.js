@@ -4,9 +4,6 @@ import { EMPTY_CHAT_STATUS } from '../utils/chat.constants'
 export const EMPTY_CONTEXT_VALUE = {
   chatStatus: EMPTY_CHAT_STATUS,
   messages: [],
-  activityFeed: [],
-  taskRecords: [],
-  liveRuntimeStatus: '',
   sending: false,
   isConnecting: false,
   sendError: '',
@@ -17,13 +14,21 @@ export const EMPTY_CONTEXT_VALUE = {
   resumeTask: async () => ({ success: false })
 }
 
+export const EMPTY_LIVE_VALUE = {
+  activityFeed: [],
+  taskRecords: [],
+  liveRuntimeStatus: ''
+}
+
 export const ChatRuntimeContext = createContext(EMPTY_CONTEXT_VALUE)
+export const ChatLiveContext = createContext(EMPTY_LIVE_VALUE)
 
 export const useChatRuntime = () => {
   const context = useContext(ChatRuntimeContext)
   if (!context) {
     throw new Error('useChatRuntime must be used inside ChatRuntimeProvider.')
   }
-
   return context
 }
+
+export const useChatLive = () => useContext(ChatLiveContext)

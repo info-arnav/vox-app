@@ -55,21 +55,15 @@ export const upsertTaskState = (currentTasks, taskId, patch, timestamp) => {
   if (!normalizedTaskId) return currentTasks
 
   const currentIndex = currentTasks.findIndex((task) => task.taskId === normalizedTaskId)
-  const currentTask =
-    currentIndex >= 0
-      ? currentTasks[currentIndex]
-      : createEmptyTaskState(normalizedTaskId, timestamp)
+  const ts = timestamp || new Date().toISOString()
 
-  const nextTask = { ...currentTask, ...patch, updatedAt: timestamp || new Date().toISOString() }
+  if (currentIndex >= 0) {
+    const nextTask = { ...currentTasks[currentIndex], ...patch, updatedAt: ts }
+    return currentTasks.map((task, index) => (index === currentIndex ? nextTask : task))
+  }
 
-  const nextTasks =
-    currentIndex >= 0
-      ? currentTasks.map((task, index) => (index === currentIndex ? nextTask : task))
-      : [nextTask, ...currentTasks]
-
-  return nextTasks
-    .sort((left, right) => new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime())
-    .slice(0, MAX_TASK_ITEMS)
+  const nextTask = { ...createEmptyTaskState(normalizedTaskId, ts), ...patch, updatedAt: ts }
+  return [nextTask, ...currentTasks].slice(0, MAX_TASK_ITEMS)
 }
 
 export const getTaskIdFromEventData = (data) =>

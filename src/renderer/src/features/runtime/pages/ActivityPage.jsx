@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import {
@@ -16,6 +16,7 @@ import {
   Zap
 } from 'lucide-react'
 import { useChatRuntime } from '../../chat/state/ChatRuntimeContext'
+import { useChatLive } from '../../chat/state/ChatRuntimeContext'
 import { useTaskHistory } from '../../chat/state/useTaskHistory'
 import { useTaskDetail } from '../hooks/useTaskDetail'
 import {
@@ -32,7 +33,13 @@ import {
 const STATUS_COLOR = TASK_STATUS_COLOR
 const STATUS_LABEL = TASK_STATUS_LABEL
 
-function ActivityListRow({ task, onClick, onAbort, onResume, onRerun }) {
+const ActivityListRow = memo(function ActivityListRow({
+  task,
+  onClick,
+  onAbort,
+  onResume,
+  onRerun
+}) {
   const { taskId, status, spawnInstructions, planSteps, completedStepIds, spawnedAt } = task
   const [busy, setBusy] = useState(false)
   const isRunning = status === 'running' || status === 'spawned'
@@ -154,7 +161,7 @@ function ActivityListRow({ task, onClick, onAbort, onResume, onRerun }) {
       </div>
     </div>
   )
-}
+})
 
 function TimelineMarker({ icon: Icon, iconClass = '', label, sub, isLast = false }) {
   return (
@@ -489,7 +496,8 @@ function FinalResultItem({ result, isError }) {
 }
 
 function ActivityPage({ focusedTaskId, onClearFocus }) {
-  const { activityFeed, taskRecords, abortTask, resumeTask, sendMessage } = useChatRuntime()
+  const { abortTask, resumeTask, sendMessage } = useChatRuntime()
+  const { activityFeed, taskRecords } = useChatLive()
   const {
     tasks: allTasks,
     hasMore,
@@ -565,10 +573,12 @@ function ActivityPage({ focusedTaskId, onClearFocus }) {
   useEffect(() => {
     loadMoreRef.current = loadMore
   }, [loadMore])
-  const sentinelRef = useRef(null)
-  useEffect(() => {
-    if (activeFocusedId) return
-    const el = sentinelRef.current
+  const obsRef = useRef(null)
+  const sentinelCallbackRef = useCallback((el) => {
+    if (obsRef.current) {
+      obsRef.current.disconnect()
+      obsRef.current = null
+    }
     if (!el) return
     const obs = new IntersectionObserver(
       (entries) => {
@@ -577,8 +587,8 @@ function ActivityPage({ focusedTaskId, onClearFocus }) {
       { threshold: 0.1 }
     )
     obs.observe(el)
-    return () => obs.disconnect()
-  }, [activeFocusedId, hasMore, historyLoading])
+    obsRef.current = obs
+  }, [])
 
   return (
     <section className="runtime-page activity-page">
@@ -625,7 +635,7 @@ function ActivityPage({ focusedTaskId, onClearFocus }) {
                 </div>
               )}
               {hasMore && !historyLoading && (
-                <div className="runtime-bot-sentinel" ref={sentinelRef} />
+                <div className="runtime-bot-sentinel" ref={sentinelCallbackRef} />
               )}
             </div>
           )}
