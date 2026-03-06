@@ -7,7 +7,7 @@ import { deleteLocalPath, listLocalDirectory } from './fs/directory'
 import { runLocalCommand } from './fs/command'
 import { captureFullScreen } from './screen'
 import { listIndexedFiles, readIndexedFile } from './snapshot'
-import { sendEmail, searchContacts } from './mail'
+import { sendEmail, searchContacts, readEmails } from './mail'
 
 const TOOL_EXECUTORS = {
   capture_full_screen: captureFullScreen,
@@ -22,7 +22,8 @@ const TOOL_EXECUTORS = {
   create_pdf_document: createPdfDocument,
   create_presentation_document: createPresentationDocument,
   send_email: sendEmail,
-  search_contacts: searchContacts
+  search_contacts: searchContacts,
+  read_emails: readEmails
 }
 
 export const DESKTOP_TOOL_DECLARATIONS = TOOL_DEFINITIONS

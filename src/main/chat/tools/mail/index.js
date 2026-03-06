@@ -1,6 +1,9 @@
-import { sendEmailMac, searchContactsMac } from './mac'
-import { sendEmailWindows, searchContactsWindows } from './win'
-import { sendEmailLinux, searchContactsLinux } from './linux'
+import { sendEmailMac, searchContactsMac } from './send/mac'
+import { sendEmailWindows, searchContactsWindows } from './send/win'
+import { sendEmailLinux, searchContactsLinux } from './send/linux'
+import { readEmailsMac } from './read/mac'
+import { readEmailsWindows } from './read/win'
+import { readEmailsLinux } from './read/linux'
 
 const normalizeList = (v) => {
   if (!v) return []
@@ -27,6 +30,21 @@ export const sendEmail = async (payload) => {
   if (process.platform === 'darwin') return sendEmailMac(args)
   if (process.platform === 'win32') return sendEmailWindows(args)
   return sendEmailLinux(args)
+}
+
+export const readEmails = async (payload) => {
+  const folder = String(payload?.folder ?? 'INBOX').trim()
+  const limit = Math.min(Math.max(1, Number(payload?.limit ?? 10)), 50)
+  const unreadOnly = Boolean(payload?.unread_only ?? payload?.unreadOnly ?? false)
+  const search = String(payload?.search ?? '').trim()
+  const args = { folder, limit, unreadOnly, search }
+
+  let messages = []
+  if (process.platform === 'darwin') messages = await readEmailsMac(args)
+  else if (process.platform === 'win32') messages = await readEmailsWindows(args)
+  else messages = await readEmailsLinux(args)
+
+  return { folder, count: messages.length, messages }
 }
 
 export const searchContacts = async (payload) => {

@@ -3,7 +3,7 @@ import { exec } from 'child_process'
 import fs from 'fs/promises'
 import os from 'os'
 import path from 'path'
-import { resolveLocalPath } from '../shared'
+import { resolveLocalPath } from '../../shared'
 
 const execAsync = promisify(exec)
 

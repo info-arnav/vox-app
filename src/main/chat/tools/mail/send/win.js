@@ -1,7 +1,7 @@
 import { promisify } from 'util'
 import { exec } from 'child_process'
-import { resolveLocalPath } from '../shared'
-import { EXEC_TIMEOUT, writeTempScript, cleanupTemp, parseTabSeparated } from './shared'
+import { resolveLocalPath } from '../../shared'
+import { EXEC_TIMEOUT, writeTempScript, cleanupTemp, parseTabSeparated } from '../shared'
 
 const execAsync = promisify(exec)
 

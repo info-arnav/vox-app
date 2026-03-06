@@ -1,5 +1,33 @@
 export const MAIL_TOOL_DEFINITIONS = [
   {
+    name: 'read_emails',
+    description:
+      "Read emails from the user's local mail client (Mail.app on macOS, Outlook on Windows, Thunderbird/mbox on Linux). Returns a list of messages with sender, subject, date and read status. Use this when the user asks to check, read, or search their email.",
+    parameters: {
+      type: 'object',
+      properties: {
+        folder: {
+          type: 'string',
+          description:
+            'Mailbox folder name to read from. Default is "INBOX". Other examples: "Sent", "Drafts".'
+        },
+        limit: {
+          type: 'number',
+          description: 'Maximum number of emails to return. Default 10, max 50.'
+        },
+        unread_only: {
+          type: 'boolean',
+          description: 'If true, only return unread emails. Default false.'
+        },
+        search: {
+          type: 'string',
+          description: 'Optional keyword to filter results by sender or subject. Case-insensitive.'
+        }
+      },
+      required: []
+    }
+  },
+  {
     name: 'search_contacts',
     description:
       "Search the user's local system contacts (Contacts.app on macOS, Outlook / Windows Contacts on Windows, GNOME Contacts / abook on Linux) by name. Returns matching contacts with their email addresses. Call this before send_email whenever the user refers to a person by name rather than a full email address.",
