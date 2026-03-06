@@ -89,3 +89,37 @@ export const readEmailsLinux = async ({ folder, limit, unreadOnly, search }) => 
 
   return results
 }
+
+export const getEmailBodyLinux = async ({ sender = '', subject = '' } = {}) => {
+  const mboxRoots = [
+    path.join(os.homedir(), 'Maildir'),
+    '/var/mail',
+    path.join(os.homedir(), 'mail'),
+  ]
+
+  const sQ = sender.toLowerCase()
+  const subQ = subject.toLowerCase()
+
+  for (const dir of mboxRoots) {
+    try { await fs.access(dir) } catch { continue }
+    const files = await findMboxFiles(dir)
+    for (const file of files) {
+      try {
+        const content = await fs.readFile(file, 'utf8')
+        const messages = content.split(/^From /m).slice(1)
+        for (const msg of messages) {
+          const headerEnd = msg.indexOf('\n\n')
+          if (headerEnd === -1) continue
+          const headers = msg.slice(0, headerEnd).toLowerCase()
+          const body = msg.slice(headerEnd + 2)
+          const senderOk = !sQ || headers.includes(sQ)
+          const subjectOk = !subQ || headers.includes(subQ)
+          if (senderOk && subjectOk) return { found: true, body: body.slice(0, 8000) }
+        }
+      } catch {
+        // unreadable
+      }
+    }
+  }
+  return { found: false, body: null }
+}

@@ -30,7 +30,7 @@ export const MAIL_TOOL_DEFINITIONS = [
   {
     name: 'search_contacts',
     description:
-      "Search the user's local system contacts (Contacts.app on macOS, Outlook / Windows Contacts on Windows, GNOME Contacts / abook on Linux) by name. Returns matching contacts with their email addresses. Call this before send_email whenever the user refers to a person by name rather than a full email address.",
+      "Search the user's local system contacts (Contacts.app on macOS, Outlook / Windows Contacts on Windows, GNOME Contacts / abook on Linux) by name. Returns matching contacts with their name, email address, and where available: phone number, company, and job title. Call this before send_email whenever the user refers to a person by name rather than a full email address.",
     parameters: {
       type: 'object',
       properties: {
@@ -78,6 +78,27 @@ export const MAIL_TOOL_DEFINITIONS = [
         }
       },
       required: ['to', 'subject', 'body']
+    }
+  },
+  {
+    name: 'get_email_body',
+    description:
+      "Retrieve the full body/content of a specific email from the user's local mail client. Use this when the user wants to read the actual content of an email (not just subject/sender). Provide sender and/or subject to identify the email.",
+    parameters: {
+      type: 'object',
+      properties: {
+        sender: {
+          type: 'string',
+          description:
+            'Sender name or email address to match (partial match, case-insensitive). Leave empty to match any sender.'
+        },
+        subject: {
+          type: 'string',
+          description:
+            'Subject text to match (partial match, case-insensitive). Leave empty to match any subject.'
+        }
+      },
+      required: []
     }
   }
 ]

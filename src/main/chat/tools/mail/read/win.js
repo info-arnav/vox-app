@@ -59,3 +59,39 @@ const parseEmailRecords = (stdout) =>
       const [sender, subject, date, read] = line.split('\t')
       return { sender, subject, date, read }
     })
+
+export const getEmailBodyWindows = async ({ sender = '', subject = '' } = {}) => {
+  const sQ = sender.replace(/'/g, "''")
+  const subQ = subject.replace(/'/g, "''")
+
+  const script = [
+    '$ErrorActionPreference = "Stop"',
+    'try {',
+    '  $ol = New-Object -ComObject Outlook.Application',
+    '  $ns = $ol.GetNamespace("MAPI")',
+    '  function Search-Folder($folder) {',
+    '    foreach ($item in $folder.Items) {',
+    `      $ms = '${sQ}'; $msub = '${subQ}'`,
+    '      $okS = ($ms -eq "" -or ($item.SenderEmailAddress -like "*$ms*") -or ($item.SenderName -like "*$ms*"))',
+    '      $okT = ($msub -eq "" -or ($item.Subject -like "*$msub*"))',
+    '      if ($okS -and $okT) { Write-Output $item.Body; return }',
+    '    }',
+    '    foreach ($sub in $folder.Folders) { Search-Folder $sub }',
+    '  }',
+    '  foreach ($store in $ns.Stores) { Search-Folder $store.GetRootFolder() }',
+    '} catch {}'
+  ].join('\n')
+
+  const scriptFile = await writeTempScript(script, 'ps1')
+  try {
+    const { stdout } = await execAsync(
+      `powershell -NoProfile -NonInteractive -File "${scriptFile}"`,
+      { timeout: EXEC_TIMEOUT }
+    )
+    const body = stdout.trim()
+    if (!body) return { found: false, body: null }
+    return { found: true, body: body.slice(0, 8000) }
+  } finally {
+    await cleanupTemp(scriptFile)
+  }
+}

@@ -112,3 +112,51 @@ export const readEmailsMac = async ({ folder, limit, unreadOnly, search }) => {
     await cleanupTemp(scriptFile)
   }
 }
+
+export const getEmailBodyMac = async ({ sender = '', subject = '' } = {}) => {
+  const sQ = sender.replace(/"/g, '\\"')
+  const subQ = subject.replace(/"/g, '\\"')
+
+  const script = [
+    'set senderQ to "' + sQ + '"',
+    'set subjectQ to "' + subQ + '"',
+    'tell application "Mail"',
+    '  set allBoxes to {inbox}',
+    '  repeat with acct in every account',
+    '    try',
+    '      repeat with mb in every mailbox of acct',
+    '        set end of allBoxes to mb',
+    '      end repeat',
+    '    end try',
+    '  end repeat',
+    '  repeat with mb in allBoxes',
+    '    try',
+    '      repeat with m in (messages of mb)',
+    '        set matchSender to true',
+    '        set matchSubject to true',
+    '        if senderQ is not "" then',
+    '          if sender of m does not contain senderQ then set matchSender to false',
+    '        end if',
+    '        if subjectQ is not "" then',
+    '          if subject of m does not contain subjectQ then set matchSubject to false',
+    '        end if',
+    '        if matchSender and matchSubject then',
+    '          return content of m',
+    '        end if',
+    '      end repeat',
+    '    end try',
+    '  end repeat',
+    '  return "NOT_FOUND"',
+    'end tell'
+  ].join('\n')
+
+  const scriptFile = await writeTempScript(script, 'scpt')
+  try {
+    const { stdout } = await execAsync(`osascript "${scriptFile}"`, { timeout: EXEC_TIMEOUT })
+    const body = stdout.trim()
+    if (!body || body === 'NOT_FOUND') return { found: false, body: null }
+    return { found: true, body: body.slice(0, 8000) }
+  } finally {
+    await cleanupTemp(scriptFile)
+  }
+}

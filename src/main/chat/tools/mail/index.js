@@ -1,9 +1,9 @@
 import { sendEmailMac, searchContactsMac } from './send/mac'
 import { sendEmailWindows, searchContactsWindows } from './send/win'
 import { sendEmailLinux, searchContactsLinux } from './send/linux'
-import { readEmailsMac } from './read/mac'
-import { readEmailsWindows } from './read/win'
-import { readEmailsLinux } from './read/linux'
+import { readEmailsMac, getEmailBodyMac } from './read/mac'
+import { readEmailsWindows, getEmailBodyWindows } from './read/win'
+import { readEmailsLinux, getEmailBodyLinux } from './read/linux'
 
 const normalizeList = (v) => {
   if (!v) return []
@@ -57,4 +57,14 @@ export const searchContacts = async (payload) => {
   else contacts = await searchContactsLinux(query)
 
   return { query, count: contacts.length, contacts }
+}
+
+export const getEmailBody = async (payload) => {
+  const sender = String(payload?.sender ?? payload?.from ?? '').trim()
+  const subject = String(payload?.subject ?? '').trim()
+  const args = { sender, subject }
+
+  if (process.platform === 'darwin') return getEmailBodyMac(args)
+  if (process.platform === 'win32') return getEmailBodyWindows(args)
+  return getEmailBodyLinux(args)
 }

@@ -8,7 +8,7 @@ import { runLocalCommand } from './fs/command'
 import { getScratchDir } from './fs/scratch'
 import { captureFullScreen } from './screen'
 import { listIndexedFiles, readIndexedFile } from './snapshot'
-import { sendEmail, searchContacts, readEmails } from './mail'
+import { sendEmail, searchContacts, readEmails, getEmailBody } from './mail'
 
 const TOOL_EXECUTORS = {
   capture_full_screen: captureFullScreen,
@@ -25,7 +25,8 @@ const TOOL_EXECUTORS = {
   create_presentation_document: createPresentationDocument,
   send_email: sendEmail,
   search_contacts: searchContacts,
-  read_emails: readEmails
+  read_emails: readEmails,
+  get_email_body: getEmailBody
 }
 
 export const DESKTOP_TOOL_DECLARATIONS = TOOL_DEFINITIONS
