@@ -1,10 +1,10 @@
 {
   "name": "vox",
   "version": "1.0.19",
-  "description": "An Electron application with React",
+  "description": "Vox — your AI voice assistant for the desktop",
   "main": "./out/main/index.js",
   "author": "Arnav Gupta",
-  "homepage": "https://electron-vite.org",
+  "homepage": "https://www.vox-ai.chat",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",

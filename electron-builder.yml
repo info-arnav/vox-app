@@ -1,4 +1,4 @@
-appId: com.electron.app
+appId: com.arnavgupta.vox
 productName: vox
 directories:
   buildResources: build
@@ -23,18 +23,19 @@ mac:
   entitlementsInherit: build/entitlements.mac.plist
   notarize: true
   extendInfo:
-    - NSCameraUsageDescription: Application requests access to the device's camera.
     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
     - NSScreenCaptureUsageDescription: Application requests access to record the screen.
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
+    - NSContactsUsageDescription: Application requests access to your contacts to help address emails and messages.
+    - NSAppleEventsUsageDescription: Application requests permission to automate Mail to send and read emails on your behalf.
 dmg:
   artifactName: ${name}-${version}.${ext}
 linux:
   target:
     - AppImage
     - deb
-  maintainer: electronjs.org
+  maintainer: Arnav Gupta
   category: Utility
 appImage:
   artifactName: ${name}-${version}.${ext}

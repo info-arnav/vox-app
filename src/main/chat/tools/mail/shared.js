@@ -2,7 +2,7 @@ import fs from 'fs/promises'
 import os from 'os'
 import path from 'path'
 
-export const EXEC_TIMEOUT = 30_000
+export const EXEC_TIMEOUT = 120_000
 
 export const writeTempScript = async (content, ext) => {
   const file = path.join(
