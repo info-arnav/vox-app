@@ -19,11 +19,7 @@ export const parseTabSeparated = (stdout) =>
   String(stdout || '')
     .split('\n')
     .map((line) => {
-      const [name, email, phone, company, jobTitle] = line.split('\t')
-      const contact = { name: name?.trim(), email: email?.trim() || '' }
-      if (phone?.trim()) contact.phone = phone.trim()
-      if (company?.trim()) contact.company = company.trim()
-      if (jobTitle?.trim()) contact.jobTitle = jobTitle.trim()
-      return contact
+      const [name, email] = line.split('\t')
+      return { name: name?.trim(), email: email?.trim() }
     })
-    .filter((r) => r.name)
+    .filter((r) => r.name && r.email)

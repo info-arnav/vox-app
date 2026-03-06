@@ -60,30 +60,9 @@ export const searchContactsLinux = async (query) => {
       const fnMatch = card.match(/^FN[^:]*:(.+)$/im)
       const name = fnMatch ? fnMatch[1].trim() : null
       if (!name || !name.toLowerCase().includes(q)) continue
-      const telMatch = card.match(/^TEL[^:]*:(.+)$/im)
-      const orgMatch = card.match(/^ORG[^:]*:(.+)$/im)
-      const titleMatch = card.match(/^TITLE[^:]*:(.+)$/im)
-      const phone = telMatch ? telMatch[1].trim() : ''
-      const company = orgMatch ? orgMatch[1].trim().split(';')[0] : ''
-      const jobTitle = titleMatch ? titleMatch[1].trim() : ''
-      const emailMatches = [...card.matchAll(/^EMAIL[^:]*:(.+)$/gim)]
-      if (emailMatches.length > 0) {
-        for (const m of emailMatches) {
-          const email = m[1].trim()
-          if (email) {
-            const contact = { name, email }
-            if (phone) contact.phone = phone
-            if (company) contact.company = company
-            if (jobTitle) contact.jobTitle = jobTitle
-            results.push(contact)
-          }
-        }
-      } else if (phone || company) {
-        const contact = { name, email: '' }
-        if (phone) contact.phone = phone
-        if (company) contact.company = company
-        if (jobTitle) contact.jobTitle = jobTitle
-        results.push(contact)
+      for (const m of [...card.matchAll(/^EMAIL[^:]*:(.+)$/gim)]) {
+        const email = m[1].trim()
+        if (email) results.push({ name, email })
       }
     }
   }
@@ -116,15 +95,10 @@ export const searchContactsLinux = async (query) => {
     for (const entry of content.split(/^\[/m).slice(1)) {
       const nameMatch = entry.match(/^name=(.+)$/im)
       const emailMatch = entry.match(/^email=(.+)$/im)
-      if (nameMatch) {
+      if (nameMatch && emailMatch) {
         const name = nameMatch[1].trim()
-        if (name.toLowerCase().includes(q)) {
-          const email = emailMatch ? emailMatch[1].trim() : ''
-          const phoneMatch = entry.match(/^phone=(.+)$/im)
-          const contact = { name, email }
-          if (phoneMatch) contact.phone = phoneMatch[1].trim()
-          results.push(contact)
-        }
+        const email = emailMatch[1].trim()
+        if (name.toLowerCase().includes(q)) results.push({ name, email })
       }
     }
   } catch {
