@@ -73,6 +73,11 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  if (process.platform === 'darwin') {
+    app.setActivationPolicy('regular')
+    app.dock.show()
+  }
+
   electronApp.setAppUserModelId('com.electron')
 
   app.on('browser-window-created', (_, window) => {
@@ -86,11 +91,6 @@ app.whenReady().then(() => {
   createWindow()
   createVoiceWindow()
   createVoiceTray(createWindow)
-
-  if (process.platform === 'darwin') {
-    app.setActivationPolicy('regular')
-    app.dock.show()
-  }
 
   app.on('activate', function () {
     if (!mainWindow) createWindow()

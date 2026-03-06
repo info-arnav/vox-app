@@ -54,7 +54,7 @@ const initPorcupine = async () => {
     return
   }
 
-  if (process.platform === 'darwin' || process.platform === 'win32') {
+  if (process.platform === 'darwin') {
     const status = systemPreferences.getMediaAccessStatus('microphone')
     if (status !== 'granted') {
       const granted = await systemPreferences.askForMediaAccess('microphone')
@@ -62,6 +62,12 @@ const initPorcupine = async () => {
         console.warn('[voice] Microphone permission denied — wake word disabled')
         return
       }
+    }
+  } else if (process.platform === 'win32') {
+    const status = systemPreferences.getMediaAccessStatus('microphone')
+    if (status !== 'granted') {
+      console.warn('[voice] Microphone access denied in Windows privacy settings — wake word disabled')
+      return
     }
   }
 
