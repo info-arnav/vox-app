@@ -17,7 +17,7 @@ jobs:
         include:
           - os: macos-latest
             script: build:mac
-            artifacts: 'dist/*.dmg dist/*.zip'
+            artifacts: "dist/*.dmg\ndist/*.zip"
           - os: windows-latest
             script: build:win
             artifacts: 'dist/*.exe'

@@ -44,3 +44,4 @@ publish:
   provider: github
   owner: info-arnav
   repo: vox-app
+  releaseType: release
