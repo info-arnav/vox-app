@@ -531,21 +531,6 @@ function ActivityPage({ focusedTaskId, onClearFocus }) {
     [allTasks]
   )
 
-  const allTasksRef = useRef(allTasks)
-  useEffect(() => {
-    allTasksRef.current = allTasks
-  }, [allTasks])
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      const hasRunning = allTasksRef.current.some(
-        (task) => task.status === 'running' || task.status === 'spawned'
-      )
-      if (hasRunning) refreshHistory()
-    }, 5000)
-    return () => clearInterval(t)
-  }, [refreshHistory])
-
   const prevTaskStatusesRef = useRef({})
   useEffect(() => {
     const prev = prevTaskStatusesRef.current

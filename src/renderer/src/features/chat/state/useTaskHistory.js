@@ -44,6 +44,7 @@ export function useTaskHistory() {
   const nextOffsetIdRef = useRef(null)
   const hasMoreRef = useRef(false)
   const initialLoadDone = useRef(false)
+  const historicalRef = useRef(historical)
 
   const fetchPage = useCallback(async (offsetId) => {
     if (loadingRef.current) return
@@ -86,8 +87,12 @@ export function useTaskHistory() {
   }, [fetchPage])
 
   useEffect(() => {
+    historicalRef.current = historical
+  }, [historical])
+
+  useEffect(() => {
     const poll = async () => {
-      const running = historical.filter((t) => t.status === 'running' || t.status === 'spawned')
+      const running = historicalRef.current.filter((t) => t.status === 'running' || t.status === 'spawned')
       if (!running.length) return
 
       const results = await Promise.allSettled(running.map((t) => window.api.tasks.get(t.taskId)))
@@ -100,7 +105,12 @@ export function useTaskHistory() {
           const raw = r.value.data?.task
           if (!raw) return
           const next = normalizeHistoricalTask(raw)
-          if (next.status !== running[i].status) {
+          const prev_task = running[i]
+          if (
+            next.status !== prev_task.status ||
+            next.spawnInstructions !== prev_task.spawnInstructions ||
+            next.currentStepId !== prev_task.currentStepId
+          ) {
             updates.set(next.taskId, next)
             changed = true
           }
@@ -110,9 +120,9 @@ export function useTaskHistory() {
       })
     }
 
-    const t = setInterval(poll, 5000)
+    const t = setInterval(poll, 2000)
     return () => clearInterval(t)
-  }, [historical])
+  }, [])
 
   const tasks = useMemo(() => {
     const historicalMap = new Map(historical.map((t) => [t.taskId, t]))
