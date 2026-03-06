@@ -43,11 +43,6 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Build app
-        run: npm run build
-        env:
-          PORCUPINE_ACCESS_KEY: ${{ secrets.PORCUPINE_ACCESS_KEY }}
-
       - name: Decode Apple API key
         if: matrix.os == 'macos-latest'
         run: |
@@ -57,6 +52,7 @@ jobs:
       - name: Package app
         run: npm run ${{ matrix.script }}
         env:
+          PORCUPINE_ACCESS_KEY: ${{ secrets.PORCUPINE_ACCESS_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_API_KEY: ${{ runner.temp }}/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
