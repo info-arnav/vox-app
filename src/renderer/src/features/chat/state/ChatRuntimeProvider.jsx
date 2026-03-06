@@ -46,6 +46,7 @@ export function ChatRuntimeProvider({ chatUserId, children }) {
   const [liveRuntimeStatus, setLiveRuntimeStatus] = useState('')
   const pendingSpawnCallsRef = useRef([])
   const liveStatusTimerRef = useRef(null)
+  const activeTaskIdRef = useRef(null)
 
   const { markStreamStarted, appendAssistantChunk, markStreamComplete } = useChatStream(setMessages)
 
@@ -88,7 +89,8 @@ export function ChatRuntimeProvider({ chatUserId, children }) {
     setTaskRecords,
     setSendError,
     setSending,
-    pendingSpawnCallsRef
+    pendingSpawnCallsRef,
+    activeTaskIdRef
   })
 
   useEffect(() => {
@@ -189,6 +191,12 @@ export function ChatRuntimeProvider({ chatUserId, children }) {
     return window.api.tasks.abort(id)
   }, [])
 
+  const abortCurrentTask = useCallback(() => {
+    const id = activeTaskIdRef.current
+    if (!id) return Promise.resolve({ success: false })
+    return abortTask(id)
+  }, [abortTask])
+
   const resumeTask = useCallback(async (taskId) => {
     const id = String(taskId || '').trim()
     if (!id) return { success: false }
@@ -212,10 +220,12 @@ export function ChatRuntimeProvider({ chatUserId, children }) {
       sendMessage,
       clearSendError,
       abortTask,
+      abortCurrentTask,
       resumeTask
     }),
     [
       abortTask,
+      abortCurrentTask,
       activityFeed,
       chatStatus,
       clearSendError,

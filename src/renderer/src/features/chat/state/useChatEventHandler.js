@@ -30,7 +30,8 @@ export const useChatEventHandler = ({
   setTaskRecords,
   setSendError,
   setSending,
-  pendingSpawnCallsRef
+  pendingSpawnCallsRef,
+  activeTaskIdRef
 }) =>
   useCallback(
     (event) => {
@@ -99,6 +100,8 @@ export const useChatEventHandler = ({
         const taskId = shortTaskId(rawTaskId)
         const status = String(event?.data?.status || 'updated').toLowerCase()
 
+        if (rawTaskId && activeTaskIdRef) activeTaskIdRef.current = rawTaskId
+
         if (
           status === 'completed' ||
           status === 'failed' ||
@@ -122,6 +125,7 @@ export const useChatEventHandler = ({
               }
             ]
           })
+          if (activeTaskIdRef) activeTaskIdRef.current = null
           setRuntimeStatus('', 0)
         }
       }

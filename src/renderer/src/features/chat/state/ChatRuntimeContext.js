@@ -12,7 +12,7 @@ export const EMPTY_CONTEXT_VALUE = {
   sendError: '',
   sendMessage: async () => ({ success: false }),
   clearSendError: () => {},
-  abortTask: async () => ({ success: false }),
+  abortTask: async () => ({ success: false }),\n  abortCurrentTask: async () => ({ success: false }),
   resumeTask: async () => ({ success: false })
 }
 
