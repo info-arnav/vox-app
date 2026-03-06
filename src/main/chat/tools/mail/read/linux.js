@@ -94,14 +94,18 @@ export const getEmailBodyLinux = async ({ sender = '', subject = '' } = {}) => {
   const mboxRoots = [
     path.join(os.homedir(), 'Maildir'),
     '/var/mail',
-    path.join(os.homedir(), 'mail'),
+    path.join(os.homedir(), 'mail')
   ]
 
   const sQ = sender.toLowerCase()
   const subQ = subject.toLowerCase()
 
   for (const dir of mboxRoots) {
-    try { await fs.access(dir) } catch { continue }
+    try {
+      await fs.access(dir)
+    } catch {
+      continue
+    }
     const files = await findMboxFiles(dir)
     for (const file of files) {
       try {

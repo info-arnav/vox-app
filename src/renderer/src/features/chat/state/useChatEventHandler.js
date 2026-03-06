@@ -138,6 +138,7 @@ export const useChatEventHandler = ({
       }
     },
     [
+      activeTaskIdRef,
       appendActivity,
       appendAssistantChunk,
       markStreamComplete,
