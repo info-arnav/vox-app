@@ -75,6 +75,7 @@ function createWindow() {
 app.whenReady().then(() => {
   if (process.platform === 'darwin') {
     app.setActivationPolicy('regular')
+    app.dock.setIcon(icon)
     app.dock.show()
   }
 
