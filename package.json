@@ -1,6 +1,6 @@
 {
   "name": "vox",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "Vox — your AI voice assistant for the desktop",
   "main": "./out/main/index.js",
   "author": "Arnav Gupta",

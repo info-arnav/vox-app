@@ -3,6 +3,9 @@ import { useChatLive } from './ChatRuntimeContext'
 import { computeEffectiveStatus } from '../../runtime/utils/task.utils'
 
 const PAGE_SIZE = 20
+const TERMINAL = new Set(['completed', 'failed', 'aborted', 'incomplete'])
+const RUNNING = new Set(['running', 'spawned'])
+const HISTORICAL_POLL_MS = 30000
 
 function normalizeHistoricalTask(row) {
   const ts = row.created_at || new Date().toISOString()
@@ -45,6 +48,10 @@ export function useTaskHistory() {
   const hasMoreRef = useRef(false)
   const initialLoadDone = useRef(false)
   const historicalRef = useRef(historical)
+  const taskRecordsRef = useRef(taskRecords)
+
+  useEffect(() => { historicalRef.current = historical }, [historical])
+  useEffect(() => { taskRecordsRef.current = taskRecords }, [taskRecords])
 
   const fetchPage = useCallback(async (offsetId) => {
     if (loadingRef.current) return
@@ -53,13 +60,10 @@ export function useTaskHistory() {
     try {
       const params = { limit: PAGE_SIZE }
       if (offsetId) params.offset_id = offsetId
-
       const res = await window.api.tasks.list(params)
       if (!res?.success) return
-
       const { tasks: rows = [], has_more, next_offset_id } = res.data || {}
       const normalized = rows.map(normalizeHistoricalTask)
-
       setHistorical((prev) => (offsetId ? [...prev, ...normalized] : normalized))
       setHasMore(!!has_more)
       hasMoreRef.current = !!has_more
@@ -77,54 +81,39 @@ export function useTaskHistory() {
   }, [fetchPage])
 
   const loadMore = useCallback(() => {
-    if (hasMoreRef.current && nextOffsetIdRef.current) {
-      fetchPage(nextOffsetIdRef.current)
+    if (hasMoreRef.current && nextOffsetIdRef.current) fetchPage(nextOffsetIdRef.current)
+  }, [fetchPage])
+
+  const refresh = useCallback(() => fetchPage(null), [fetchPage])
+
+  const prevTaskStatusesRef = useRef({})
+  useEffect(() => {
+    const prev = prevTaskStatusesRef.current
+    const next = {}
+    let anyBecameTerminal = false
+    for (const t of taskRecords) {
+      next[t.taskId] = t.status
+      const wasRunning = !prev[t.taskId] || RUNNING.has(prev[t.taskId])
+      if (wasRunning && TERMINAL.has(t.status)) anyBecameTerminal = true
     }
-  }, [fetchPage])
-
-  const refresh = useCallback(() => {
-    fetchPage(null)
-  }, [fetchPage])
-
-  useEffect(() => {
-    historicalRef.current = historical
-  }, [historical])
+    prevTaskStatusesRef.current = next
+    if (anyBecameTerminal) {
+      const timer = setTimeout(() => fetchPage(null), 1500)
+      return () => clearTimeout(timer)
+    }
+  }, [taskRecords, fetchPage])
 
   useEffect(() => {
-    const poll = async () => {
-      const running = historicalRef.current.filter(
-        (t) => t.status === 'running' || t.status === 'spawned'
+    const poll = () => {
+      const liveIds = new Set(taskRecordsRef.current.map((t) => t.taskId))
+      const hasStaleRunning = historicalRef.current.some(
+        (t) => RUNNING.has(t.status) && !liveIds.has(t.taskId)
       )
-      if (!running.length) return
-
-      const results = await Promise.allSettled(running.map((t) => window.api.tasks.get(t.taskId)))
-
-      setHistorical((prev) => {
-        let changed = false
-        const updates = new Map()
-        results.forEach((r, i) => {
-          if (r.status !== 'fulfilled' || !r.value?.success) return
-          const raw = r.value.data?.task
-          if (!raw) return
-          const next = normalizeHistoricalTask(raw)
-          const prev_task = running[i]
-          if (
-            next.status !== prev_task.status ||
-            next.spawnInstructions !== prev_task.spawnInstructions ||
-            next.currentStepId !== prev_task.currentStepId
-          ) {
-            updates.set(next.taskId, next)
-            changed = true
-          }
-        })
-        if (!changed) return prev
-        return prev.map((h) => updates.get(h.taskId) ?? h)
-      })
+      if (hasStaleRunning) fetchPage(null)
     }
-
-    const t = setInterval(poll, 2000)
+    const t = setInterval(poll, HISTORICAL_POLL_MS)
     return () => clearInterval(t)
-  }, [])
+  }, [fetchPage])
 
   const tasks = useMemo(() => {
     const historicalMap = new Map(historical.map((t) => [t.taskId, t]))
