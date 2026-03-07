@@ -56,17 +56,22 @@ export const activityFromEvent = (event) => {
     return {
       ...base,
       kind: 'tool',
-      title: `Tool call · ${toolName}`,
+      name: toolName,
+      args,
+      title: `Tool call \u00b7 ${toolName}`,
       detail: shortParam || summarizeValue(data?.args),
       inspectInput: stringifyInspectValue(parsedArgs)
     }
   }
 
   if (type === 'tool_result') {
+    const toolName = String(data?.name || 'unknown')
     return {
       ...base,
       kind: 'tool',
-      title: `Tool result · ${String(data?.name || 'unknown')}`,
+      name: toolName,
+      rawResult: data?.result ?? null,
+      title: `Tool result \u00b7 ${toolName}`,
       detail: summarizeValue(data?.result),
       inspectOutput: stringifyInspectValue(data?.result)
     }
@@ -86,7 +91,9 @@ export const activityFromEvent = (event) => {
     return {
       ...base,
       kind: 'tool',
-      title: `Desktop request · ${toolName}`,
+      name: toolName,
+      args: payload,
+      title: `Desktop request \u00b7 ${toolName}`,
       detail: shortParam || rawPayload,
       inspectInput: rawPayload
     }
@@ -162,6 +169,16 @@ export const activityFromEvent = (event) => {
       kind: 'error',
       title: 'Error',
       detail: summarizeValue(data?.message || 'Chat request failed.')
+    }
+  }
+
+  if (type === 'agent.thinking') {
+    const thought = String(data?.thought || '').trim()
+    return {
+      ...base,
+      kind: 'status',
+      title: thought.length > 80 ? `${thought.slice(0, 80)}…` : thought || 'Agent thinking…',
+      detail: ''
     }
   }
 

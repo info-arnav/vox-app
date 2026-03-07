@@ -90,7 +90,7 @@ export const useChatEventHandler = ({
         dequeuePendingSpawn: () => pendingSpawnCallsRef.current.shift() || null
       })
 
-      if (event.type === 'tool_call') {
+      if (event.type === 'tool_call' && !event?.data?.taskId) {
         const message = `${describeToolActivity(event?.data?.name)}...`
         setRuntimeStatus(message)
       }
