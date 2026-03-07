@@ -1,4 +1,6 @@
-import { globalShortcut, systemPreferences } from 'electron'
+import { globalShortcut, systemPreferences, app } from 'electron'
+import { join } from 'path'
+import { is } from '@electron-toolkit/utils'
 import { VOICE_ACTIVATE_CHANNEL, emitToWindows } from '../chat/chat.socket.state'
 
 let porcupine = null
@@ -32,12 +34,34 @@ const runPorcupineLoop = async () => {
   if (recorderRunning) setImmediate(runPorcupineLoop)
 }
 
+const getPorcupineUnpackedBase = () => {
+  if (is.dev) return join(app.getAppPath(), 'node_modules/@picovoice/porcupine-node')
+  return join(process.resourcesPath, 'app.asar.unpacked/node_modules/@picovoice/porcupine-node')
+}
+
+const getPorcupinePlatformPaths = () => {
+  const base = getPorcupineUnpackedBase()
+  const plt = process.platform === 'darwin' ? 'mac' : process.platform === 'win32' ? 'windows' : 'linux'
+  const archMap = {
+    darwin: { arm64: 'arm64', x64: 'x86_64' },
+    win32: { x64: 'amd64', arm64: 'arm64' },
+    linux: { x64: 'x86_64', arm64: 'cortex-a76-aarch64' }
+  }
+  const arch = (archMap[process.platform] || {})[process.arch] || process.arch
+  return {
+    keywordPath: join(base, `resources/keyword_files/${plt}/computer_${plt}.ppn`),
+    modelPath: join(base, 'lib/common/porcupine_params.pv'),
+    libraryPath: join(base, `lib/${plt}/${arch}/pv_porcupine.node`)
+  }
+}
+
 const startPorcupine = (accessKey) => {
   try {
-    const { Porcupine, BuiltinKeyword } = require('@picovoice/porcupine-node')
+    const { Porcupine } = require('@picovoice/porcupine-node')
     const { PvRecorder } = require('@picovoice/pvrecorder-node')
+    const { keywordPath, modelPath, libraryPath } = getPorcupinePlatformPaths()
 
-    porcupine = new Porcupine(accessKey, [BuiltinKeyword.COMPUTER], [0.5])
+    porcupine = new Porcupine(accessKey, [keywordPath], [0.5], { modelPath, libraryPath })
     recorder = new PvRecorder(porcupine.frameLength)
     recorder.start()
     recorderRunning = true

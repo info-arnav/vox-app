@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/electron/main'
-import { app, shell, BrowserWindow, nativeImage } from 'electron'
+import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -73,15 +73,6 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-  if (process.platform === 'darwin') {
-    app.setActivationPolicy('regular')
-    const dockIcon = is.dev
-      ? nativeImage.createFromPath(icon)
-      : nativeImage.createFromPath(join(process.resourcesPath, 'icon.icns'))
-    app.dock.setIcon(dockIcon)
-    app.dock.show()
-  }
-
   electronApp.setAppUserModelId('com.electron')
 
   app.on('browser-window-created', (_, window) => {

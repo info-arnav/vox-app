@@ -24,7 +24,6 @@ export const createVoiceWindow = () => {
     hasShadow: false,
     focusable: true,
     roundedCorners: false,
-    ...(process.platform === 'darwin' ? { type: 'panel' } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
