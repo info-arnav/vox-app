@@ -7,7 +7,12 @@ import {
   writeLocalChatMessages
 } from '../utils/chat.messages'
 import { activityFromEvent } from '../utils/chat.activity'
-import { ChatRuntimeContext, ChatLiveContext, EMPTY_CONTEXT_VALUE } from './ChatRuntimeContext'
+import {
+  ChatRuntimeContext,
+  ChatLiveContext,
+  ChatStatusContext,
+  EMPTY_CONTEXT_VALUE
+} from './ChatRuntimeContext'
 import { useChatStream } from './useChatStream'
 import { useChatEventHandler } from './useChatEventHandler'
 
@@ -154,7 +159,7 @@ export function ChatRuntimeProvider({ chatUserId, children }) {
   }, [clearLiveStatusTimer, handleChatEvent, setRuntimeStatus])
 
   useEffect(() => {
-    const timer = window.setTimeout(() => writeLocalChatMessages(chatStorageKey, messages), 220)
+    const timer = window.setTimeout(() => writeLocalChatMessages(chatStorageKey, messages), 2000)
     return () => window.clearTimeout(timer)
   }, [chatStorageKey, messages])
 
@@ -243,14 +248,15 @@ export function ChatRuntimeProvider({ chatUserId, children }) {
     ]
   )
 
-  const liveValue = useMemo(
-    () => ({ activityFeed, taskRecords, liveRuntimeStatus }),
-    [activityFeed, taskRecords, liveRuntimeStatus]
-  )
+  const liveValue = useMemo(() => ({ activityFeed, taskRecords }), [activityFeed, taskRecords])
+
+  const statusValue = useMemo(() => ({ liveRuntimeStatus }), [liveRuntimeStatus])
 
   return (
     <ChatRuntimeContext.Provider value={contextValue}>
-      <ChatLiveContext.Provider value={liveValue}>{children}</ChatLiveContext.Provider>
+      <ChatStatusContext.Provider value={statusValue}>
+        <ChatLiveContext.Provider value={liveValue}>{children}</ChatLiveContext.Provider>
+      </ChatStatusContext.Provider>
     </ChatRuntimeContext.Provider>
   )
 }

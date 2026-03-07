@@ -15,22 +15,18 @@ function normalizeHistoricalTask(row) {
   return {
     taskId: String(row.id || ''),
     status: String(row.status || 'running'),
-    totalSteps: 0,
-    completedStepIds: [],
-    currentStepId: row.current_step_id || '',
+    completedCount: 0,
+    currentPlan: row.current_plan || '',
     message: row.abort_reason || '',
     resultPreview: '',
     spawnRequestedAt: ts,
     spawnedAt: ts,
-    plannedAt: '',
     startedAt: ts,
     completedAt: isFailed ? '' : doneAt,
     failedAt: isFailed ? doneAt : '',
     spawnInstructions: row.instructions || '',
     spawnContext: '',
     spawnArgsPreview: '',
-    planSteps: [],
-    stepMeta: {},
     history: [],
     updatedAt: doneAt || ts
   }
@@ -50,8 +46,12 @@ export function useTaskHistory() {
   const historicalRef = useRef(historical)
   const taskRecordsRef = useRef(taskRecords)
 
-  useEffect(() => { historicalRef.current = historical }, [historical])
-  useEffect(() => { taskRecordsRef.current = taskRecords }, [taskRecords])
+  useEffect(() => {
+    historicalRef.current = historical
+  }, [historical])
+  useEffect(() => {
+    taskRecordsRef.current = taskRecords
+  }, [taskRecords])
 
   const fetchPage = useCallback(async (offsetId) => {
     if (loadingRef.current) return

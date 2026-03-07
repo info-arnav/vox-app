@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { getResponseErrorMessage } from '../../../shared/hooks/useSessionRecovery'
 
 export const INDEXING_PAUSED_STORAGE_KEY = 'vox.workspace.indexing.paused'
-const STATUS_POLL_INTERVAL_MS = 1500
+const STATUS_POLL_INTERVAL_MS = 3000
 const AUTO_INDEX_SCAN_INTERVAL_MS = 15000
 
 const EMPTY_INDEXING_STATUS = {
@@ -185,7 +185,10 @@ export const useIndexingController = ({
 
   useEffect(() => {
     const statusPollInterval = window.setInterval(() => {
-      void refreshIndexingStatus()
+      const s = indexingStatusRef.current
+      if (s.running || s.cancelling) {
+        void refreshIndexingStatus()
+      }
     }, STATUS_POLL_INTERVAL_MS)
 
     return () => window.clearInterval(statusPollInterval)

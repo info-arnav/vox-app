@@ -41,7 +41,8 @@ const getPorcupineUnpackedBase = () => {
 
 const getPorcupinePlatformPaths = () => {
   const base = getPorcupineUnpackedBase()
-  const plt = process.platform === 'darwin' ? 'mac' : process.platform === 'win32' ? 'windows' : 'linux'
+  const plt =
+    process.platform === 'darwin' ? 'mac' : process.platform === 'win32' ? 'windows' : 'linux'
   const archMap = {
     darwin: { arm64: 'arm64', x64: 'x86_64' },
     win32: { x64: 'amd64', arm64: 'arm64' },
@@ -90,7 +91,9 @@ const initPorcupine = async () => {
   } else if (process.platform === 'win32') {
     const status = systemPreferences.getMediaAccessStatus('microphone')
     if (status !== 'granted') {
-      console.warn('[voice] Microphone access denied in Windows privacy settings — wake word disabled')
+      console.warn(
+        '[voice] Microphone access denied in Windows privacy settings — wake word disabled'
+      )
       return
     }
   }

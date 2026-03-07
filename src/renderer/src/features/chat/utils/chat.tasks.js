@@ -1,24 +1,10 @@
-import { MAX_TASK_ITEMS, MAX_TASK_HISTORY_ITEMS, MAX_DETAIL_LENGTH } from './chat.constants'
-import { clipText } from './chat.text'
+import { MAX_TASK_ITEMS, MAX_TASK_HISTORY_ITEMS } from './chat.constants'
 import {
-  applyPlanEvent,
   applyProgressEvent,
   applySpawnResultEvent,
   applyStatusEvent,
   applyToolEvent
 } from './chat.task.handlers'
-
-export const normalizePlanSteps = (steps = []) => {
-  if (!Array.isArray(steps)) return []
-  return steps
-    .map((step, index) => {
-      const fallbackId = String(index + 1)
-      const stepId = String(step?.id || fallbackId).trim() || fallbackId
-      const instruction = clipText(step?.instruction || '', MAX_DETAIL_LENGTH)
-      return { id: stepId, instruction }
-    })
-    .filter((step) => step.id)
-}
 
 export const pushTaskHistory = (history, entry) => {
   const normalizedEntry = entry && typeof entry === 'object' ? entry : null
@@ -30,22 +16,18 @@ export const pushTaskHistory = (history, entry) => {
 export const createEmptyTaskState = (taskId, timestamp) => ({
   taskId,
   status: 'spawned',
-  totalSteps: 0,
-  completedStepIds: [],
-  currentStepId: '',
+  completedCount: 0,
+  currentPlan: '',
   message: '',
   resultPreview: '',
   spawnRequestedAt: '',
   spawnedAt: '',
-  plannedAt: '',
   startedAt: '',
   completedAt: '',
   failedAt: '',
   spawnInstructions: '',
   spawnContext: '',
   spawnArgsPreview: '',
-  planSteps: [],
-  stepMeta: {},
   history: [],
   updatedAt: timestamp || new Date().toISOString()
 })
@@ -69,9 +51,6 @@ export const upsertTaskState = (currentTasks, taskId, patch, timestamp) => {
 export const getTaskIdFromEventData = (data) =>
   String(data?.taskId || data?.result?.taskId || '').trim()
 
-export const getStepIdFromEventData = (data, fallbackTask = null) =>
-  String(data?.stepId || data?.result?.stepId || fallbackTask?.currentStepId || '').trim()
-
 export const applyTaskEvent = (event, setTasks, options = {}) => {
   const type = String(event?.type || '')
   const data = event?.data || {}
@@ -86,11 +65,6 @@ export const applyTaskEvent = (event, setTasks, options = {}) => {
 
   if (type === 'tool_call' || type === 'tool_result') {
     applyToolEvent(type, data, timestamp, setTasks)
-    return
-  }
-
-  if (type === 'task.plan') {
-    applyPlanEvent(data, timestamp, setTasks)
     return
   }
 

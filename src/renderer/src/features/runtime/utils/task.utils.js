@@ -32,28 +32,12 @@ export function resultSnippet(raw, limit = 200) {
   return cleaned.length > limit ? `${cleaned.slice(0, limit)}…` : cleaned
 }
 
-export function mergeSteps(dbSteps, liveTask) {
-  if (!liveTask) return dbSteps || []
-  const dbMap = {}
-  for (const s of dbSteps || []) dbMap[s.step_id] = s
-  const planSteps = liveTask.planSteps || []
-  if (!planSteps.length && !dbSteps?.length) return []
-  const merged = planSteps.map((ps, idx) => {
-    const db = dbMap[ps.id]
-    const isCompleted = liveTask.completedStepIds?.includes(ps.id)
-    const isCurrent = liveTask.currentStepId === ps.id
-    return {
-      step_id: ps.id,
-      instruction: ps.instruction || db?.instruction || `Step ${idx + 1}`,
-      result: db?.result || null,
-      status: db?.status || (isCompleted ? 'completed' : isCurrent ? 'running' : 'pending'),
-      depth: db?.depth || 0
-    }
-  })
-  for (const db of dbSteps || []) {
-    if (!merged.some((m) => m.step_id === db.step_id)) merged.push(db)
-  }
-  return merged
+export function mergeSteps(dbSteps) {
+  return (dbSteps || []).map((s) => ({
+    step_id: s.step_id,
+    instruction: s.instruction || '',
+    status: s.status || 'completed'
+  }))
 }
 
 const TERMINAL_DB_STATUSES = new Set(['completed', 'failed', 'aborted', 'incomplete'])

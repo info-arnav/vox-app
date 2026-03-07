@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowUp, CheckCircle, CircleAlert } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { useChatRuntime, useChatLive } from '../state/ChatRuntimeContext'
+import { useChatRuntime, useChatStatus } from '../state/ChatRuntimeContext'
 
 const SUGGESTION_CHIPS = [
   'Summarize my recent documents',
@@ -75,7 +75,7 @@ const ChatMessage = memo(function ChatMessage({ message }) {
 function ChatScreen({ user }) {
   const { messages, sendError, sending, isConnecting, sendMessage, clearSendError } =
     useChatRuntime()
-  const { liveRuntimeStatus } = useChatLive()
+  const { liveRuntimeStatus } = useChatStatus()
 
   const inputRef = useRef(null)
   const [hasContent, setHasContent] = useState(false)

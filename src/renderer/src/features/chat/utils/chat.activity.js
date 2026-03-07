@@ -92,45 +92,15 @@ export const activityFromEvent = (event) => {
     }
   }
 
-  if (type === 'task.tool') {
-    const toolName = String(data?.tool || 'unknown')
-    return {
-      ...base,
-      kind: 'tool',
-      title: `Tool call · ${toolName}`,
-      detail: data?.args
-        ? typeof data.args === 'string'
-          ? data.args.slice(0, 80)
-          : JSON.stringify(data.args).slice(0, 80)
-        : '',
-      inspectInput: stringifyInspectValue(data?.args)
-    }
-  }
-
-  if (type === 'task.plan') {
-    const steps = Array.isArray(data?.steps) ? data.steps.length : 0
-    const round = String(data?.round || '').trim()
-    const roundLabel = round ? ` · round ${round}` : ''
-    return {
-      ...base,
-      kind: 'task',
-      title: `Task planned${roundLabel}`,
-      status: 'planned',
-      detail: `${steps} step${steps === 1 ? '' : 's'} · ${shortTaskId(data?.taskId)}`
-    }
-  }
-
   if (type === 'task.progress') {
-    const stepId = String(data?.stepId || '').trim()
-    const total = Number(data?.total || 0)
-    const statusLabel = String(data?.status || 'running').toLowerCase()
-    const stepLabel = stepId ? `step ${stepId}${total ? ` of ${total}` : ''}` : 'running'
+    const completedCount = Number(data?.completedCount || 0)
+    const currentPlan = String(data?.currentPlan || '').trim()
     return {
       ...base,
       kind: 'task',
-      title: stepLabel,
-      status: statusLabel,
-      detail: `Task ${shortTaskId(data?.taskId)} · ${statusLabel}`
+      title: currentPlan || `${completedCount} action${completedCount === 1 ? '' : 's'} done`,
+      status: 'running',
+      detail: `Task ${shortTaskId(data?.taskId)} · ${completedCount} completed`
     }
   }
 
@@ -146,7 +116,7 @@ export const activityFromEvent = (event) => {
     }
   }
 
-  if (type === 'usage') {
+  if (type === 'task.usage') {
     return {
       ...base,
       kind: 'usage',

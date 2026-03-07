@@ -40,17 +40,15 @@ const ActivityListRow = memo(function ActivityListRow({
   onResume,
   onRerun
 }) {
-  const { taskId, status, spawnInstructions, planSteps, completedStepIds, spawnedAt } = task
+  const { taskId, status, spawnInstructions, completedCount, currentPlan, spawnedAt } = task
   const [busy, setBusy] = useState(false)
   const isRunning = status === 'running' || status === 'spawned'
   const canResume = status === 'failed' || status === 'incomplete'
   const canRerun = !isRunning && !canResume && Boolean(spawnInstructions)
-  const doneCount = completedStepIds?.length || 0
-  const totalCount = planSteps?.length || 0
+  const doneCount = completedCount || 0
   const color = STATUS_COLOR[status] || 'muted'
   const label = STATUS_LABEL[status] || status
-  const firstStepInstruction = planSteps?.[0]?.instruction || ''
-  const preview = String(spawnInstructions || firstStepInstruction || '').trim()
+  const preview = String(spawnInstructions || currentPlan || '').trim()
 
   const handleAbort = useCallback(
     async (e) => {
@@ -110,9 +108,9 @@ const ActivityListRow = memo(function ActivityListRow({
         </p>
         <div className="activity-list-row-meta">
           <span className={`activity-list-status activity-list-status-${color}`}>{label}</span>
-          {totalCount > 0 && (
+          {doneCount > 0 && (
             <span className="activity-list-steps">
-              {doneCount}/{totalCount} steps
+              {doneCount} action{doneCount === 1 ? '' : 's'} done
             </span>
           )}
         </div>
@@ -228,12 +226,9 @@ function ToolCallPair({ call, result }) {
   )
 }
 
-function StepItem({ step, toolPairs, isLast }) {
-  const [expanded, setExpanded] = useState(false)
-  const [ref, overflows] = useOverflows(expanded)
+function StepItem({ step, isLast }) {
   const Icon = STEP_STATUS_ICON[step.status] || Clock
   const iconClass = `activity-step-icon-${step.status}`
-  const hasFullResult = Boolean(step.result?.trim())
 
   return (
     <div
@@ -251,32 +246,6 @@ function StepItem({ step, toolPairs, isLast }) {
           <p className="activity-timeline-sub activity-step-running">Working on this…</p>
         )}
         {step.status === 'pending' && <p className="activity-timeline-sub">Up next</p>}
-        {toolPairs.length > 0 && (
-          <div className="activity-step-tools">
-            {toolPairs.map((pair, i) => (
-              <ToolCallPair key={i} call={pair.call} result={pair.result} />
-            ))}
-          </div>
-        )}
-        {hasFullResult && step.status !== 'running' && (
-          <div className="activity-step-result">
-            <div
-              ref={ref}
-              className={`activity-step-full-result${expanded ? '' : ' activity-step-result-clamped'}`}
-            >
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{step.result}</ReactMarkdown>
-            </div>
-            {(overflows || expanded) && (
-              <button
-                className="activity-tool-expand"
-                onClick={() => setExpanded((v) => !v)}
-                type="button"
-              >
-                {expanded ? 'Show less' : 'See full output'}
-              </button>
-            )}
-          </div>
-        )}
       </div>
     </div>
   )
@@ -336,22 +305,17 @@ function ActivityDetail({ taskId, liveTask, onBack, onAbort, onResume, taskEvent
   const color = STATUS_COLOR[effectiveStatus] || 'muted'
   const label = STATUS_LABEL[effectiveStatus] || effectiveStatus
 
-  const toolPairsByStep = useMemo(() => {
-    const map = {}
+  const toolPairs = useMemo(() => {
     const calls = taskEvents.filter((e) => e.type === 'tool_call' || e.type === 'task.request')
     const results = taskEvents.filter((e) => e.type === 'tool_result')
     const usedResultIds = new Set()
-    for (const call of calls) {
-      const sid = call.stepId || '__global__'
-      if (!map[sid]) map[sid] = []
-      const matchedResult = results.find(
-        (r) =>
-          !usedResultIds.has(r.id) && r.stepId === call.stepId && r.data?.name === call.data?.name
+    return calls.map((call) => {
+      const matched = results.find(
+        (r) => !usedResultIds.has(r.id) && r.data?.name === call.data?.name
       )
-      if (matchedResult) usedResultIds.add(matchedResult.id)
-      map[sid].push({ call, result: matchedResult || null })
-    }
-    return map
+      if (matched) usedResultIds.add(matched.id)
+      return { call, result: matched || null }
+    })
   }, [taskEvents])
 
   const handleAbort = async () => {
@@ -436,21 +400,33 @@ function ActivityDetail({ taskId, liveTask, onBack, onAbort, onResume, taskEvent
             />
             {steps.map((step, i) => {
               const isLastStep =
-                i === steps.length - 1 && !finalResult && !errorMsg && effectiveStatus !== 'running'
-              const stepPairs = step.step_id
-                ? toolPairsByStep[step.step_id] || []
-                : i === 0
-                  ? toolPairsByStep['__global__'] || []
-                  : []
-              return (
-                <StepItem
-                  key={step.step_id || i}
-                  step={step}
-                  toolPairs={stepPairs}
-                  isLast={isLastStep}
-                />
-              )
+                i === steps.length - 1 &&
+                !finalResult &&
+                !errorMsg &&
+                !toolPairs.length &&
+                effectiveStatus !== 'running'
+              return <StepItem key={step.step_id || i} step={step} isLast={isLastStep} />
             })}
+            {toolPairs.length > 0 && (
+              <div
+                className={`activity-timeline-item${!finalResult && !errorMsg ? ' activity-timeline-item-last' : ''}`}
+              >
+                <div className="activity-timeline-node">
+                  <span className="activity-timeline-icon">
+                    <Wrench size={12} />
+                  </span>
+                  {(finalResult || errorMsg) && <span className="activity-timeline-line" />}
+                </div>
+                <div className="activity-timeline-content">
+                  <p className="activity-timeline-label">Actions taken</p>
+                  <div className="activity-step-tools">
+                    {toolPairs.map((pair, idx) => (
+                      <ToolCallPair key={idx} call={pair.call} result={pair.result} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
             {finalResult && <FinalResultItem result={finalResult} isError={false} />}
             {errorMsg && !finalResult && <FinalResultItem result={errorMsg} isError />}
           </div>
@@ -498,13 +474,7 @@ function FinalResultItem({ result, isError }) {
 function ActivityPage({ focusedTaskId, onClearFocus }) {
   const { abortTask, resumeTask, sendMessage } = useChatRuntime()
   const { activityFeed, taskRecords } = useChatLive()
-  const {
-    tasks: allTasks,
-    hasMore,
-    loading: historyLoading,
-    loadMore,
-    refresh: refreshHistory
-  } = useTaskHistory()
+  const { tasks: allTasks, hasMore, loading: historyLoading, loadMore } = useTaskHistory()
   const [localFocusedId, setLocalFocusedId] = useState(null)
 
   useEffect(() => {
@@ -538,29 +508,6 @@ function ActivityPage({ focusedTaskId, onClearFocus }) {
     () => allTasks.filter((t) => t.status === 'running' || t.status === 'spawned').length,
     [allTasks]
   )
-
-  const prevTaskStatusesRef = useRef({})
-  useEffect(() => {
-    const prev = prevTaskStatusesRef.current
-    const next = {}
-    let anyTerminal = false
-    for (const t of taskRecords) {
-      next[t.taskId] = t.status
-      const wasRunning =
-        !prev[t.taskId] || prev[t.taskId] === 'running' || prev[t.taskId] === 'spawned'
-      const isTerminal =
-        t.status === 'completed' ||
-        t.status === 'failed' ||
-        t.status === 'aborted' ||
-        t.status === 'incomplete'
-      if (wasRunning && isTerminal) anyTerminal = true
-    }
-    prevTaskStatusesRef.current = next
-    if (anyTerminal) {
-      const t = setTimeout(() => refreshHistory(), 1200)
-      return () => clearTimeout(t)
-    }
-  }, [taskRecords, refreshHistory])
 
   const rerunTask = useCallback(
     (instructions) => {

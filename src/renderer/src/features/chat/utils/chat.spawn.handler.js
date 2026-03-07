@@ -1,8 +1,7 @@
 import { MAX_DETAIL_LENGTH } from './chat.constants'
-import { clipText, parseToolArgs, summarizeValue, stringifyInspectValue } from './chat.text'
+import { clipText, parseToolArgs, summarizeValue } from './chat.text'
 import {
   createEmptyTaskState,
-  getStepIdFromEventData,
   getTaskIdFromEventData,
   pushTaskHistory,
   upsertTaskState
@@ -62,44 +61,11 @@ export const applyToolEvent = (type, data, timestamp, setTasks) => {
     const existing =
       current.find((task) => String(task?.taskId || '') === taskId) ||
       createEmptyTaskState(taskId, timestamp)
-    const stepMeta = {
-      ...(existing.stepMeta && typeof existing.stepMeta === 'object' ? existing.stepMeta : {})
-    }
-    const stepId = getStepIdFromEventData(data, existing)
+
     const toolName = String(data?.name || data?.tool || '').trim()
     const isToolCall = type === 'tool_call'
     const payloadValue = isToolCall ? parseToolArgs(data?.args) : data?.result
     const payloadPreview = clipText(summarizeValue(payloadValue), MAX_DETAIL_LENGTH)
-    const payloadInspector = stringifyInspectValue(payloadValue)
-
-    if (stepId) {
-      const currentStep = stepMeta[stepId] || {}
-      const stepHistory = Array.isArray(currentStep.toolHistory) ? currentStep.toolHistory : []
-      const nextStepHistory = [
-        {
-          at: timestamp,
-          type: isToolCall ? 'call' : 'result',
-          tool: toolName || 'tool',
-          preview: payloadPreview
-        },
-        ...stepHistory
-      ].slice(0, 8)
-
-      stepMeta[stepId] = {
-        ...currentStep,
-        id: stepId,
-        status: currentStep.status || 'running',
-        updatedAt: timestamp,
-        lastToolName: toolName || currentStep.lastToolName || '',
-        lastInputPreview: isToolCall ? payloadPreview : currentStep.lastInputPreview || '',
-        lastInputPayload: isToolCall ? payloadInspector : currentStep.lastInputPayload || '',
-        lastInputAt: isToolCall ? timestamp : currentStep.lastInputAt || '',
-        lastOutputPreview: isToolCall ? currentStep.lastOutputPreview || '' : payloadPreview,
-        lastOutputPayload: isToolCall ? currentStep.lastOutputPayload || '' : payloadInspector,
-        lastOutputAt: isToolCall ? currentStep.lastOutputAt || '' : timestamp,
-        toolHistory: nextStepHistory
-      }
-    }
 
     const history = pushTaskHistory(existing.history, {
       at: timestamp,
@@ -121,8 +87,8 @@ export const applyToolEvent = (type, data, timestamp, setTasks) => {
       taskId,
       {
         status: nextStatus,
-        currentStepId: stepId || existing.currentStepId,
-        stepMeta,
+        lastToolName: toolName || existing.lastToolName || '',
+        lastToolPreview: isToolCall ? payloadPreview : existing.lastToolPreview || '',
         startedAt: existing.startedAt || timestamp,
         history
       },
