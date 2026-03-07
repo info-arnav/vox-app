@@ -6,6 +6,7 @@ import {
   pushTaskHistory,
   upsertTaskState
 } from './chat.tasks'
+import { TERMINAL_STATUSES } from '../../activity/utils/task.utils'
 
 export const applySpawnResultEvent = (data, timestamp, setTasks, dequeuePendingSpawn) => {
   setTasks((current) => {
@@ -79,8 +80,7 @@ export const applyToolEvent = (type, data, timestamp, setTasks) => {
     const normalizedStatus = String(existing.status || '')
       .trim()
       .toLowerCase()
-    const TERMINAL = new Set(['completed', 'failed', 'aborted', 'incomplete'])
-    const nextStatus = TERMINAL.has(normalizedStatus) ? existing.status : 'running'
+    const nextStatus = TERMINAL_STATUSES.has(normalizedStatus) ? existing.status : 'running'
 
     return upsertTaskState(
       current,

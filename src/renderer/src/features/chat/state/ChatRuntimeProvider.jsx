@@ -11,6 +11,7 @@ import {
   ChatRuntimeContext,
   ChatLiveContext,
   ChatStatusContext,
+  ChatActionsContext,
   EMPTY_CONTEXT_VALUE
 } from './ChatRuntimeContext'
 import { useChatStream } from './useChatStream'
@@ -252,10 +253,17 @@ export function ChatRuntimeProvider({ chatUserId, children }) {
 
   const statusValue = useMemo(() => ({ liveRuntimeStatus }), [liveRuntimeStatus])
 
+  const actionsValue = useMemo(
+    () => ({ sendMessage, abortTask, abortCurrentTask, resumeTask, clearSendError }),
+    [sendMessage, abortTask, abortCurrentTask, resumeTask, clearSendError]
+  )
+
   return (
     <ChatRuntimeContext.Provider value={contextValue}>
       <ChatStatusContext.Provider value={statusValue}>
-        <ChatLiveContext.Provider value={liveValue}>{children}</ChatLiveContext.Provider>
+        <ChatActionsContext.Provider value={actionsValue}>
+          <ChatLiveContext.Provider value={liveValue}>{children}</ChatLiveContext.Provider>
+        </ChatActionsContext.Provider>
       </ChatStatusContext.Provider>
     </ChatRuntimeContext.Provider>
   )

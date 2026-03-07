@@ -23,9 +23,18 @@ export const EMPTY_STATUS_VALUE = {
   liveRuntimeStatus: ''
 }
 
+export const EMPTY_ACTIONS_VALUE = {
+  sendMessage: async () => ({ success: false }),
+  abortTask: async () => ({ success: false }),
+  abortCurrentTask: async () => ({ success: false }),
+  resumeTask: async () => ({ success: false }),
+  clearSendError: () => {}
+}
+
 export const ChatRuntimeContext = createContext(EMPTY_CONTEXT_VALUE)
 export const ChatLiveContext = createContext(EMPTY_LIVE_VALUE)
 export const ChatStatusContext = createContext(EMPTY_STATUS_VALUE)
+export const ChatActionsContext = createContext(EMPTY_ACTIONS_VALUE)
 
 export const useChatRuntime = () => {
   const context = useContext(ChatRuntimeContext)
@@ -37,3 +46,4 @@ export const useChatRuntime = () => {
 
 export const useChatLive = () => useContext(ChatLiveContext)
 export const useChatStatus = () => useContext(ChatStatusContext)
+export const useChatActions = () => useContext(ChatActionsContext)

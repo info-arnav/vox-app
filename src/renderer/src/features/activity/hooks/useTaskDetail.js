@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react'
+import { TERMINAL_STATUSES, RUNNING_STATUSES } from '../utils/task.utils'
 
-const TERMINAL = new Set(['completed', 'failed', 'aborted', 'incomplete'])
-const RUNNING = new Set(['running', 'spawned'])
 const RUNNING_POLL_MS = 5000
 
 const initialState = { fetched: null, loading: false, error: '' }
@@ -59,7 +58,7 @@ export function useTaskDetail(taskId, liveStatus) {
 
   useEffect(() => {
     const effectiveStatus = liveStatus || state.fetched?.status
-    if (!taskId || !RUNNING.has(effectiveStatus)) return
+    if (!taskId || !RUNNING_STATUSES.has(effectiveStatus)) return
     const t = setInterval(() => doFetch(taskId, { silent: true }), RUNNING_POLL_MS)
     return () => clearInterval(t)
   }, [liveStatus, state.fetched?.status, taskId, doFetch])
@@ -69,7 +68,7 @@ export function useTaskDetail(taskId, liveStatus) {
     const prev = prevStatus.current
     prevStatus.current = liveStatus
     const wasRunning = !prev || prev === 'running' || prev === 'spawned'
-    const isNowTerminal = TERMINAL.has(liveStatus)
+    const isNowTerminal = TERMINAL_STATUSES.has(liveStatus)
     if (wasRunning && isNowTerminal && taskId) {
       const t = setTimeout(() => doFetch(taskId, { silent: true }), 800)
       return () => clearTimeout(t)

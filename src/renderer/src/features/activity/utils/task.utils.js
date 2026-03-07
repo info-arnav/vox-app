@@ -1,5 +1,8 @@
 import { CheckCircle, CircleAlert, Clock, Loader } from 'lucide-react'
 
+export const TERMINAL_STATUSES = new Set(['completed', 'failed', 'aborted', 'incomplete'])
+export const RUNNING_STATUSES = new Set(['running', 'spawned'])
+
 export function relativeTime(iso) {
   if (!iso) return ''
   const diff = Date.now() - new Date(iso).getTime()
@@ -23,15 +26,6 @@ export function elapsedLabel(startIso, endIso) {
   return r > 0 ? `${m}m ${r}s` : `${m}m`
 }
 
-export function resultSnippet(raw, limit = 200) {
-  if (!raw) return ''
-  const cleaned = raw
-    .replace(/```[\s\S]*?```/g, '[code]')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim()
-  return cleaned.length > limit ? `${cleaned.slice(0, limit)}…` : cleaned
-}
-
 export function mergeSteps(dbSteps) {
   return (dbSteps || []).map((s) => ({
     step_id: s.step_id,
@@ -40,11 +34,9 @@ export function mergeSteps(dbSteps) {
   }))
 }
 
-const TERMINAL_DB_STATUSES = new Set(['completed', 'failed', 'aborted', 'incomplete'])
-
 export function computeEffectiveStatus(rawStatus, dbTask) {
   const result = dbTask?.result || ''
-  const isTerminalDb = TERMINAL_DB_STATUSES.has(dbTask?.status)
+  const isTerminalDb = TERMINAL_STATUSES.has(dbTask?.status)
   if ((rawStatus === 'running' || rawStatus === 'spawned') && (result || isTerminalDb)) {
     return dbTask?.status || 'completed'
   }

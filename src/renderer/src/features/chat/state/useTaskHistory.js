@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useChatLive } from './ChatRuntimeContext'
-import { computeEffectiveStatus } from '../../runtime/utils/task.utils'
+import {
+  computeEffectiveStatus,
+  TERMINAL_STATUSES,
+  RUNNING_STATUSES
+} from '../../activity/utils/task.utils'
 
 const PAGE_SIZE = 20
-const TERMINAL = new Set(['completed', 'failed', 'aborted', 'incomplete'])
-const RUNNING = new Set(['running', 'spawned'])
 const HISTORICAL_POLL_MS = 30000
 
 function normalizeHistoricalTask(row) {
@@ -93,8 +95,8 @@ export function useTaskHistory() {
     let anyBecameTerminal = false
     for (const t of taskRecords) {
       next[t.taskId] = t.status
-      const wasRunning = !prev[t.taskId] || RUNNING.has(prev[t.taskId])
-      if (wasRunning && TERMINAL.has(t.status)) anyBecameTerminal = true
+      const wasRunning = !prev[t.taskId] || RUNNING_STATUSES.has(prev[t.taskId])
+      if (wasRunning && TERMINAL_STATUSES.has(t.status)) anyBecameTerminal = true
     }
     prevTaskStatusesRef.current = next
     if (anyBecameTerminal) {
@@ -107,7 +109,7 @@ export function useTaskHistory() {
     const poll = () => {
       const liveIds = new Set(taskRecordsRef.current.map((t) => t.taskId))
       const hasStaleRunning = historicalRef.current.some(
-        (t) => RUNNING.has(t.status) && !liveIds.has(t.taskId)
+        (t) => RUNNING_STATUSES.has(t.status) && !liveIds.has(t.taskId)
       )
       if (hasStaleRunning) fetchPage(null)
     }
