@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Loader } from 'lucide-react'
 import { useChatActions, useChatLive } from '../../chat/state/ChatRuntimeContext'
 import { useTaskHistory } from '../../chat/state/useTaskHistory'
 import ActivityListRow from './ActivityListRow'
@@ -72,7 +71,7 @@ function ActivityPage({ focusedTaskId, onClearFocus }) {
   }, [])
 
   return (
-    <section className="runtime-page activity-page">
+    <section className="activity-page">
       {activeFocusedId ? (
         <ActivityDetail
           key={activeFocusedId}
@@ -88,8 +87,8 @@ function ActivityPage({ focusedTaskId, onClearFocus }) {
           <header className="activity-list-header">
             <h2>Activity</h2>
             {runningCount > 0 && (
-              <div className="runtime-live-badge">
-                <span className="runtime-live-badge-dot" />
+              <div className="activity-live-badge">
+                <span className="activity-live-badge-dot" />
                 {runningCount} running
               </div>
             )}
@@ -125,13 +124,23 @@ function ActivityPage({ focusedTaskId, onClearFocus }) {
                 />
               ))}
               {historyLoading && (
-                <div className="runtime-bot-loading">
-                  <Loader size={14} />
-                  <span>Loading more…</span>
+                <div className="activity-list-skeleton">
+                  {[80, 60].map((w, i) => (
+                    <div key={i} className="activity-skeleton-row">
+                      <div className="activity-skeleton-dot" />
+                      <div className="activity-skeleton-row-body">
+                        <div className="activity-skeleton-line" style={{ width: `${w}%` }} />
+                        <div
+                          className="activity-skeleton-line activity-skeleton-line-sm"
+                          style={{ width: '45%' }}
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
               {hasMore && !historyLoading && (
-                <div className="runtime-bot-sentinel" ref={sentinelCallbackRef} />
+                <div className="activity-sentinel" ref={sentinelCallbackRef} />
               )}
             </div>
           )}
